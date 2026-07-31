@@ -1,0 +1,6 @@
+{
+  "name": "منصة نور الأماني - Noor Al-Amani Platform",
+  "description": "منصة مرجعية إنسانية رقمية تفهرس وتصنف قنوات الناشرين وتوزع فرص الدعم وفق معايير الحوكمة والعدالة",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

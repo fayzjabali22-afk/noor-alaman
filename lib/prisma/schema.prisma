@@ -1,0 +1,302 @@
+// Noor Al-Amani Platform - Prisma Database Schema
+// Governed by NA-ADR Sovereign Directives & NAPRUD v1.0 Architecture
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum VerificationLevel {
+  BASIC
+  GOLD
+  PLATINUM
+}
+
+enum PublisherStatus {
+  PENDING
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum LifecycleStage {
+  ACTIVE_SUPPORT
+  GROWTH
+  DALAL_TRANSITION
+  VERIFICATION_PENDING
+  STABILIZATION
+  RAEDA_SUCCESS
+  GRADUATED
+}
+
+enum AntiFraudStatus {
+  VERIFIED
+  THROTTLED
+  FLAGGED
+}
+
+enum ReporterType {
+  SUPPORTER
+  AUDITOR
+  AUTOMATED
+}
+
+enum ReportStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  DISMISSED
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  VERIFIER
+  PUBLISHER
+  SUPPORTER
+  CELEBRITY
+  SYSTEM
+}
+
+model Publisher {
+  id                    String                 @id @default(uuid())
+  name                  String
+  avatar                String?
+  location              String
+  description           String                 @db.Text
+  category              String
+  platform              String
+  externalUrl           String
+  verificationLevel     VerificationLevel      @default(BASIC)
+  status                PublisherStatus        @default(PENDING)
+  lifecycleStage        LifecycleStage         @default(ACTIVE_SUPPORT)
+  totalVisits           Int                    @default(0)
+  trustScore            Int                    @default(80)
+  dataCompletenessScore Int                    @default(90)
+  reportsCount          Int                    @default(0)
+  lastImpressionTime    DateTime?
+  joinedDate            DateTime               @default(now())
+  contactPhone          String?
+  contactEmail          String?
+  isGazaPilot           Boolean                @default(true)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  // Relationships
+  channels              PublisherChannel[]
+  visitEvents           VisitEvent[]
+  verificationRecords   VerificationRecord[]
+  reports               Report[]
+  lifecycleHistories    LifecycleHistory[]
+  fairScoreHistories    FairScoreHistory[]
+  referralsSent         PublisherReferral[]    @relation("InvitedPublisherRelation")
+  referralsReceived     PublisherReferral[]    @relation("InviterRelation")
+  jasmineProfile        JasmineProfile?
+
+  @@index([category])
+  @@index([location])
+  @@index([status])
+  @@index([lifecycleStage])
+  @@index([trustScore])
+}
+
+model PublisherChannel {
+  id               String    @id @default(uuid())
+  publisherId      String
+  platform         String
+  externalUrl      String
+  subscribersCount String?
+  isPrimary        Boolean   @default(true)
+  isVerified       Boolean   @default(false)
+  lastCheckedAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relationships
+  publisher        Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId])
+  @@index([platform])
+}
+
+model Supporter {
+  id                 String       @id @default(uuid())
+  supporterHash      String       @unique
+  name               String?
+  email              String?      @unique
+  phone              String?
+  country            String?
+  avatar             String?
+  preferredCategory  String?
+  totalVisitsCount   Int          @default(0)
+  lastActiveAt       DateTime     @default(now())
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  // Relationships
+  visitEvents        VisitEvent[]
+  reports            Report[]
+
+  @@index([supporterHash])
+}
+
+model VisitEvent {
+  id               String          @id @default(uuid())
+  publisherId      String
+  supporterId      String?
+  supporterIdHash  String
+  platform         String
+  ipHash           String
+  deviceHash       String?
+  source           String?
+  sessionToken     String
+  antiFraudStatus  AntiFraudStatus @default(VERIFIED)
+  timestamp        DateTime        @default(now())
+
+  // Relationships
+  publisher        Publisher       @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  supporter        Supporter?      @relation(fields: [supporterId], references: [id], onDelete: SetNull)
+
+  @@index([publisherId])
+  @@index([supporterIdHash])
+  @@index([ipHash])
+  @@index([timestamp])
+}
+
+model VerificationRecord {
+  id               String          @id @default(uuid())
+  publisherId      String
+  verificationType String
+  phoneVerified    Boolean         @default(false)
+  emailVerified    Boolean         @default(false)
+  linkVerified     Boolean         @default(false)
+  reviewerNotes    String?         @db.Text
+  status           PublisherStatus @default(PENDING)
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  createdAt        DateTime        @default(now())
+
+  // Relationships
+  publisher        Publisher       @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId])
+  @@index([status])
+}
+
+model Report {
+  id               String          @id @default(uuid())
+  publisherId      String
+  supporterId      String?
+  reporterType     ReporterType    @default(SUPPORTER)
+  reasonCategory   String
+  evidenceDetails  String?         @db.Text
+  status           ReportStatus    @default(OPEN)
+  resolutionAction String?         @db.Text
+  resolvedBy       String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  // Relationships
+  publisher        Publisher       @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  supporter        Supporter?      @relation(fields: [supporterId], references: [id], onDelete: SetNull)
+  history          ReportHistory[]
+
+  @@index([publisherId])
+  @@index([status])
+}
+
+model ReportHistory {
+  id             String       @id @default(uuid())
+  reportId       String
+  previousStatus ReportStatus
+  newStatus      ReportStatus
+  adminDecision  String?      @db.Text
+  changedBy      String
+  createdAt      DateTime     @default(now())
+
+  // Relationships
+  report         Report       @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  role       UserRole @default(SYSTEM)
+  actionType String
+  details    String   @db.Text
+  ipAddress  String?
+  timestamp  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([actionType])
+  @@index([timestamp])
+}
+
+model LifecycleHistory {
+  id               String         @id @default(uuid())
+  publisherId      String
+  previousStage    LifecycleStage
+  newStage         LifecycleStage
+  transitionReason String?        @db.Text
+  changedBy        String
+  createdAt        DateTime       @default(now())
+
+  // Relationships
+  publisher        Publisher      @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId])
+  @@index([createdAt])
+}
+
+model FairScoreHistory {
+  id          String    @id @default(uuid())
+  publisherId String
+  score       Int
+  reason      String    @db.Text
+  timestamp   DateTime  @default(now())
+
+  // Relationships
+  publisher   Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@index([publisherId])
+  @@index([timestamp])
+}
+
+model PublisherReferral {
+  id                 String    @id @default(uuid())
+  inviterId          String
+  invitedPublisherId String
+  timestamp          DateTime  @default(now())
+
+  // Relationships
+  inviter            Publisher @relation("InviterRelation", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitedPublisher   Publisher @relation("InvitedPublisherRelation", fields: [invitedPublisherId], references: [id], onDelete: Cascade)
+
+  @@index([inviterId])
+  @@index([invitedPublisherId])
+}
+
+model JasmineProfile {
+  id               String    @id @default(uuid())
+  publisherId      String    @unique
+  celebrityName    String
+  bio              String    @db.Text
+  impactStatement  String    @db.Text
+  videoUrl         String?
+  officialLink     String?
+  verifiedBadge    Boolean   @default(true)
+  bioReferenceLink String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relationships
+  publisher        Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+}

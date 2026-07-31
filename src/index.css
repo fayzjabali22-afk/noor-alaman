@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Eye-Care Reading Mode (وضع القراءة المريح للعين) */
+html.reading-mode-active {
+  color-scheme: dark;
+}
+
+html.reading-mode-active body {
+  background-color: #0b0d12 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Soften bright color gradients & neon glows during reading mode */
+html.reading-mode-active [class*="bg-gradient-to"] {
+  background-image: none !important;
+  background-color: #121722 !important;
+}
+
+html.reading-mode-active .reading-log-card,
+html.reading-mode-active .reading-content-card {
+  background-color: #111520 !important;
+  border-color: #242c3d !important;
+  box-shadow: none !important;
+}
+
+html.reading-mode-active article,
+html.reading-mode-active .audit-log-container {
+  line-height: 1.85 !important;
+  letter-spacing: 0.015em;
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
