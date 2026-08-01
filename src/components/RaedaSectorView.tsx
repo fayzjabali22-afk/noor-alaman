@@ -1,6 +1,7 @@
 import React from 'react';
 import { RaedaSuccessArchive, Language } from '../types';
 import { translations } from '../lib/i18n';
+import { TrustBadge } from './TrustBadge';
 import { Award, CheckCircle2, ExternalLink, Sparkles } from 'lucide-react';
 
 interface RaedaSectorViewProps {
@@ -44,8 +45,9 @@ export const RaedaSectorView: React.FC<RaedaSectorViewProps> = ({ archiveList, l
                   className="w-12 h-12 rounded-xl object-cover border border-indigo-500/40 shadow-sm"
                 />
                 <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
                     <span>{item.publisherName}</span>
+                    <TrustBadge score={96} lang={lang} size="sm" />
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   </h3>
                   <p className="text-[11px] text-slate-400 font-mono">

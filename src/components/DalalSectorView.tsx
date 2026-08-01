@@ -1,6 +1,7 @@
 import React from 'react';
 import { DalalTransitionChannel, Language } from '../types';
 import { translations, getCategoryLabel } from '../lib/i18n';
+import { TrustBadge } from './TrustBadge';
 import { BookOpen, ExternalLink, ArrowRight, Target } from 'lucide-react';
 
 interface DalalSectorViewProps {
@@ -49,7 +50,10 @@ export const DalalSectorView: React.FC<DalalSectorViewProps> = ({ channels, lang
                   className="w-12 h-12 rounded-xl object-cover border border-teal-500/40 shadow-sm"
                 />
                 <div>
-                  <h3 className="text-sm font-bold text-white">{channel.publisherName}</h3>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
+                    <span>{channel.publisherName}</span>
+                    <TrustBadge score={progressPercent >= 80 ? 88 : 75} lang={lang} size="sm" />
+                  </h3>
                   <span className="text-[11px] bg-teal-950 text-teal-300 px-2 py-0.5 rounded border border-teal-800">
                     {getCategoryLabel(channel.category, lang)}
                   </span>

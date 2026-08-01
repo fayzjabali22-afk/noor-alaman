@@ -11,6 +11,7 @@ import {
 import { translations, getCategoryLabel, getLifecycleLabel } from '../lib/i18n';
 import { calculatePublisherFairScore, calculateTrustScore } from '../lib/fairEngine';
 import { ReportModal } from './ReportModal';
+import { TrustBadge } from './TrustBadge';
 import {
   Heart,
   ExternalLink,
@@ -443,8 +444,15 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
                     className="w-12 h-12 rounded-xl object-cover border border-slate-700 shadow-md group-hover:scale-105 transition"
                   />
                   <div>
-                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
                       <span>{publisher.name}</span>
+                      <TrustBadge
+                        score={publisher.fairScore || 50}
+                        lang={lang}
+                        size="sm"
+                        hasPendingReports={publisher.reportsCount > 0}
+                        openReportsCount={publisher.reportsCount}
+                      />
                       {publisher.verificationLevel === 'PLATINUM' && (
                         <ShieldCheck className="w-4 h-4 text-sky-400" title="Platinum Verified" />
                       )}

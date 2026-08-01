@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Publisher, Language, CategoryType, PlatformType } from '../types';
 import { translations, getCategoryLabel } from '../lib/i18n';
+import { calculatePublisherFairScore, defaultFairEngineWeights } from '../lib/fairEngine';
+import { TrustBadge } from './TrustBadge';
 import {
   UserCheck,
   Send,
@@ -300,7 +302,16 @@ export const PublisherPortalView: React.FC<PublisherPortalViewProps> = ({
               <div className="flex items-center gap-3">
                 <img src={p.avatar} alt={p.name} className="w-9 h-9 rounded-lg object-cover" />
                 <div>
-                  <h4 className="font-bold text-white">{p.name}</h4>
+                  <h4 className="font-bold text-white flex items-center gap-1.5 flex-wrap">
+                    <span>{p.name}</span>
+                    <TrustBadge
+                      score={calculatePublisherFairScore(p, defaultFairEngineWeights)}
+                      lang={lang}
+                      size="sm"
+                      hasPendingReports={p.reportsCount > 0}
+                      openReportsCount={p.reportsCount}
+                    />
+                  </h4>
                   <p className="text-[11px] text-slate-400">{p.platform} • {p.location}</p>
                 </div>
               </div>

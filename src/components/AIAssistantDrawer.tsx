@@ -83,7 +83,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
       ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex justify-end">
+    <div className="fixed inset-0 z-[100000] bg-slate-950/80 backdrop-blur-sm flex justify-end" style={{ zIndex: 100000 }}>
       <div className="w-full max-w-md bg-slate-900 border-r md:border-l border-slate-800 h-full flex flex-col shadow-2xl">
         {/* Header */}
         <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">

@@ -13,6 +13,7 @@ import {
   getLifecycleLabel,
 } from '../lib/i18n';
 import { calculatePublisherFairScore } from '../lib/fairEngine';
+import { TrustBadge } from './TrustBadge';
 import {
   Search,
   CheckCircle2,
@@ -31,7 +32,6 @@ import {
   Instagram,
   Video,
   Globe,
-  SlidersHorizontal,
 } from 'lucide-react';
 
 interface CorePlatformViewProps {
@@ -182,14 +182,6 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
                 <span>{t.focusedMode}</span>
               </button>
             )}
-
-            <button
-              onClick={onOpenFairEngineConfig}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-emerald-300 px-4 py-2 rounded-xl text-xs font-medium border border-slate-700 transition shadow-sm whitespace-nowrap"
-            >
-              <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
-              <span>{lang === 'ar' ? 'تعديل أوزان محرك العدالة' : 'Tune FAIR Weights'}</span>
-            </button>
           </div>
         </div>
       </div>
@@ -338,8 +330,15 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
                       className="w-12 h-12 rounded-xl object-cover border border-slate-700 shadow-md group-hover:scale-105 transition"
                     />
                     <div>
-                      <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                      <h3 className="text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
                         <span>{publisher.name}</span>
+                        <TrustBadge
+                          score={publisher.fairScore || 50}
+                          lang={lang}
+                          size="sm"
+                          hasPendingReports={publisher.reportsCount > 0}
+                          openReportsCount={publisher.reportsCount}
+                        />
                         {publisher.verificationLevel === 'PLATINUM' && (
                           <ShieldCheck className="w-4 h-4 text-sky-400" title="Platinum Verified" />
                         )}

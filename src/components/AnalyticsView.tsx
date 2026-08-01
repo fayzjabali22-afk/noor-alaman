@@ -13,6 +13,7 @@ import {
   Cell,
 } from 'recharts';
 import { BarChart3, TrendingUp, Users, ExternalLink, Award, BookOpen } from 'lucide-react';
+import { PublisherWeeklyGrowthChart } from './PublisherWeeklyGrowthChart';
 
 interface AnalyticsViewProps {
   publishers: Publisher[];
@@ -118,6 +119,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ publishers, lang }
           </p>
         </div>
       </div>
+
+      {/* 6-Week Publisher Visitor Growth Chart */}
+      <PublisherWeeklyGrowthChart publishers={publishers} lang={lang} />
 
       {/* Visual Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

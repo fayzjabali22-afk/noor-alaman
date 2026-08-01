@@ -54,3 +54,31 @@ html.reading-mode-active .audit-log-container {
   background: #334155;
 }
 
+/* ============================================================================
+   NA-EXEC-2026-JASMINE-08-UIUX-P55: Global UX & Layout Physics Utilities
+   ============================================================================ */
+
+/* استغلال البكسلات ومنع الهدر الجانبي (Zero-Waste Responsive Layout) */
+.noor-full-bleed-container {
+  width: 100%;
+  max-width: 100%;
+  padding-left: clamp(0.5rem, 2vw, 1.25rem);
+  padding-right: clamp(0.5rem, 2vw, 1.25rem);
+}
+
+/* ضبط الحركة الاحترافية والسلاسة المطلقة للحاويات (Boundary Clamping) */
+.noor-smooth-scroll-viewport {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior-y: contain; /* منع التمدد أو الخروج عن الحدود العلوية والسفلية */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* تسريع رسوميات GPU */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
