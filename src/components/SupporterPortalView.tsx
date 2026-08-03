@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { apiAdapter } from '../services/apiAdapter';
+import { SupporterTimeline } from './SupporterTimeline';
 import {
   Publisher,
   SupporterAction,
@@ -525,44 +526,20 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
         ))}
       </div>
 
-      {/* Supporter Action History */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <History className="w-4 h-4 text-rose-400" />
-            <span>{isAr ? 'سجل توجيهات الدعم الأخيرة الخاصة بك' : 'Your Outbound Redirection History'}</span>
-          </h3>
-          <span className="text-xs text-rose-400 font-bold bg-rose-500/10 px-2.5 py-1 rounded-full border border-rose-500/20">
-            {supporterActions.length} {isAr ? 'عمليات زيارة' : 'Redirections'}
-          </span>
-        </div>
-
-        {supporterActions.length === 0 ? (
-          <p className="text-xs text-slate-500 italic text-center py-6">
-            {isAr
-              ? 'لم تقم بتنفيذ أي زيارات خارجية بعد. اضغط "انتقال للقناة الأصلية" على أي بطاقة أعلاه.'
-              : 'No outbound redirections recorded yet. Click "Go to Official Channel" on any card above.'}
-          </p>
-        ) : (
-          <div className="divide-y divide-slate-800">
-            {supporterActions.map((act) => (
-              <div key={act.id} className="py-3 flex items-center justify-between text-xs">
-                <div>
-                  <h4 className="font-bold text-white">{act.publisherName}</h4>
-                  <p className="text-[11px] text-slate-400 font-mono">
-                    {act.platform} • {new Date(act.timestamp).toLocaleString()}
-                  </p>
-                </div>
-
-                <span className="bg-emerald-950 text-emerald-300 font-bold px-2.5 py-1 rounded-lg border border-emerald-800 text-[11px] flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{isAr ? 'تم التوجيه بنجاح' : 'Redirected'}</span>
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Supporter Action Timeline (NA-ADR Compliant) */}
+      <SupporterTimeline
+        supporterActions={supporterActions}
+        publishers={publishers}
+        lang={lang}
+        onRevisitChannel={(action) => {
+          const pub = publishers.find((p) => p.id === action.publisherId);
+          if (pub) {
+            setActiveOutboundPublisher(pub);
+          } else {
+            window.open(action.publisherUrl || '#', '_blank', 'noopener,noreferrer');
+          }
+        }}
+      />
 
       {/* Outbound Notice Confirmation Modal */}
       {activeOutboundPublisher && (

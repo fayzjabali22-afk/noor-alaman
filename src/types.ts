@@ -87,6 +87,8 @@ export interface JasmineCelebrity {
   sharedReferenceBioLink: string;
   endorsedCampaign: string;
   date: string;
+  isAnonymous?: boolean;
+  aliasName?: string;
 }
 
 export interface DalalTransitionChannel {

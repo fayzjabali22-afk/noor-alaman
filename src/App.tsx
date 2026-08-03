@@ -328,7 +328,7 @@ export default function App() {
       />
 
       {/* Main App Content Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 md:py-8 pb-24 md:pb-8">
         {currentTab === 'home' && (
           <HomeScreenView
             lang={lang}

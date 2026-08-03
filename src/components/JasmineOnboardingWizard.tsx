@@ -48,6 +48,7 @@ import {
   OneWayGuidanceNote,
   INITIAL_GUIDANCE_NOTES,
 } from '../services/jasmineService';
+import { SmartLinkChipsInput, SocialLink } from './SmartLinkChipsInput';
 
 export type { JasmineOnboardingData };
 
@@ -190,8 +191,11 @@ export const JasmineOnboardingWizard: React.FC<JasmineOnboardingWizardProps> = (
   // Single Form State
   const [celebrityName, setCelebrityName] = useState('');
   const [titleRole, setTitleRole] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [aliasName, setAliasName] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState<'YouTube' | 'TikTok' | 'Instagram' | 'Facebook' | 'X' | 'Vimeo'>('YouTube');
   const [videoUrl, setVideoUrl] = useState('');
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [humanitarianPledgeAgreed, setHumanitarianPledgeAgreed] = useState(false);
   const [humanitarianStatement, setHumanitarianStatement] = useState('');
   const [endorsedCampaign, setEndorsedCampaign] = useState(
@@ -529,6 +533,8 @@ export const JasmineOnboardingWizard: React.FC<JasmineOnboardingWizardProps> = (
       humanitarianPledgeAgreed,
       humanitarianStatement: humanitarianStatement.trim(),
       endorsedCampaign: endorsedCampaign.trim(),
+      isAnonymous,
+      aliasName: aliasName.trim() || (isAnonymous ? (isAr ? 'داعم سيادي مجهول' : 'Anonymous Supporter') : undefined),
       step1: {
         adoptedChannels,
       },
@@ -720,32 +726,89 @@ export const JasmineOnboardingWizard: React.FC<JasmineOnboardingWizardProps> = (
                 </div>
               </div>
 
-              {/* Video URL Input */}
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  {isAr ? 'رابط الفيديو الداعم (YouTube, TikTok, Instagram, Facebook, X, Vimeo) *' : 'Support Video Link *'}
-                </label>
-                <div className="relative">
-                  <input
-                    type="url"
-                    value={videoUrl}
-                    onChange={(e) => {
-                      setVideoUrl(e.target.value);
-                      setStepError(null);
-                    }}
-                    placeholder="https://www.youtube.com/watch?v=... / https://vt.tiktok.com/..."
-                    className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500 pl-10 font-mono"
-                  />
-                  <Video className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+              {/* Phantom Supporter Mode Toggle Switch (NA-ADR-SOVEREIGN-CMD-055.46) */}
+              <div className="p-4 bg-slate-900/90 border border-amber-500/30 rounded-xl space-y-3 shadow-md">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                      <ShieldAlert className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs md:text-sm font-bold text-amber-300">
+                        {isAr ? 'تفعيل نمط الداعم الخفي / الراعي المستعار (Phantom Supporter Mode)' : 'Phantom Supporter Mode (Anonymous)'}
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        {isAr
+                          ? 'تقديم الكفالة والتوجيه الإنساني بخصوصية سيادية تامة دون إشهار الاسم الصريح في القوائم العامة.'
+                          : 'Provide humanitarian support with complete sovereign privacy without public name exposure.'}
+                      </p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={isAnonymous}
+                      onChange={(e) => {
+                        setIsAnonymous(e.target.checked);
+                        if (e.target.checked && !aliasName) {
+                          setAliasName(isAr ? 'داعم سيادي مجهول' : 'Anonymous Sovereign Supporter');
+                        }
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] rtl:after:right-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500" />
+                  </label>
                 </div>
 
+                {isAnonymous && (
+                  <div className="pt-2 border-t border-slate-800 space-y-2 animate-fadeIn">
+                    <div className="flex items-center gap-2 text-xs text-amber-400 font-semibold bg-amber-950/40 p-2.5 rounded-lg border border-amber-500/20">
+                      <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>
+                        {isAr
+                          ? '[شارة الظل السيادي]: يُسجل التحقق الخلفي رسمياً لحفظ حقوقك، بينما يُعرض للجمهور والقنوات فقط الاسم المستعار.'
+                          : '[Phantom Badge]: Backend verification is stored securely while public channels see only the alias.'}
+                      </span>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                        {isAr ? 'الاسم المستعار للعرض العام (اختياري)' : 'Public Alias Name (Optional)'}
+                      </label>
+                      <input
+                        type="text"
+                        value={aliasName}
+                        onChange={(e) => setAliasName(e.target.value)}
+                        placeholder={isAr ? 'مثال: داعم سيادي مجهول #JSM-909' : 'e.g. Sovereign Phantom Supporter #JSM-909'}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-amber-200 focus:outline-none focus:border-amber-500 font-mono"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Smart Video Link Chips Input Component (NA-ADR-055.44) */}
+              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+                <SmartLinkChipsInput
+                  links={socialLinks}
+                  onChange={(newLinks) => {
+                    setSocialLinks(newLinks);
+                    if (newLinks.length > 0) {
+                      setVideoUrl(newLinks[0].url);
+                    } else {
+                      setVideoUrl('');
+                    }
+                    setStepError(null);
+                  }}
+                  isAr={isAr}
+                />
+
                 {videoUrl && (
-                  <div className="mt-2 text-[11px] flex items-center gap-2">
+                  <div className="pt-1 text-[11px] flex items-center gap-2 border-t border-slate-800/80">
                     {videoValidation.isValid ? (
                       <span className="text-emerald-400 flex items-center gap-1 font-semibold">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>
-                          {isAr ? 'رابط آمن ومعتمد:' : 'Valid & Whitelisted Link:'} {videoValidation.platform}
+                          {isAr ? 'رابط المقطع الأول آمن ومعتمد:' : 'Primary Link Verified:'} {videoValidation.platform}
                         </span>
                       </span>
                     ) : (
@@ -1079,28 +1142,14 @@ export const JasmineOnboardingWizard: React.FC<JasmineOnboardingWizardProps> = (
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-                  <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                    <button
-                      type="button"
-                      onClick={handleApplySmartDefaultsAndApprove}
-                      className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      <span>{isAr ? '✓ موافقة واعتماد فوري بضغطة واحدة (1-Click Approval)' : '✓ 1-Click Instant Approval'}</span>
-                    </button>
-
-                    {onOpenGuidance && (
-                      <button
-                        type="button"
-                        onClick={onOpenGuidance}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-purple-950/90 hover:bg-purple-900 text-purple-200 font-bold text-xs border border-purple-500/50 shadow-lg transition active:scale-95 cursor-pointer"
-                        title={isAr ? 'نظام الملاحظات والإرشادات الموجهة من طرف واحد' : 'One-Way Direct Guidance System'}
-                      >
-                        <MessageSquare className="w-4 h-4 text-purple-400 shrink-0" />
-                        <span>{isAr ? 'التوجيه أحادي الاتجاه' : 'Direct Guidance'}</span>
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={handleApplySmartDefaultsAndApprove}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>{isAr ? '✓ موافقة واعتماد فوري بضغطة واحدة (1-Click Approval)' : '✓ 1-Click Instant Approval'}</span>
+                  </button>
 
                   <button
                     type="button"
@@ -1418,6 +1467,24 @@ export const JasmineOnboardingWizard: React.FC<JasmineOnboardingWizardProps> = (
                           : 'Your notes arrive as panel notifications. Publishers cannot spam your private inbox or social media accounts unless explicitly requested by you.'}
                       </p>
                     </div>
+
+                    {/* Dedicated One-Way Guidance Trigger Button inside Phase 3 Capsule 3 */}
+                    {onOpenGuidance && (
+                      <div className="pt-2 border-t border-slate-800/80">
+                        <button
+                          type="button"
+                          onClick={onOpenGuidance}
+                          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black border border-purple-400/40 text-xs transition active:scale-95 shadow-xl shadow-purple-900/50 cursor-pointer"
+                        >
+                          <MessageSquare className="w-4 h-4 text-purple-200" />
+                          <span>
+                            {isAr
+                              ? 'إرسال توجيه أحادي مباشر (فتح لوحة التوجيه الإنساني)'
+                              : 'Send Direct One-Way Guidance Note (Launch Guidance Panel)'}
+                          </span>
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* SUB-SECTION 3: RECIPROCAL SYNERGY & CROSS PROMOTION (NA-EXEC-2026-JASMINE-07-RECIPROCAL-P55) */}

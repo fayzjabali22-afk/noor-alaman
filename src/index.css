@@ -1,9 +1,28 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overscroll-behavior-y: none;
   }
+}
+
+/* Safe Area Inset Classes for Android & iOS PWAs */
+.pb-safe {
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.pt-safe {
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+}
+
+.mb-safe {
+  margin-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Eye-Care Reading Mode (وضع القراءة المريح للعين) */
@@ -37,8 +56,8 @@ html.reading-mode-active .audit-log-container {
 
 /* Custom smooth scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -54,6 +73,15 @@ html.reading-mode-active .audit-log-container {
   background: #334155;
 }
 
+/* Hide scrollbars cleanly for mobile horizontal touch carousels */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* ============================================================================
    NA-EXEC-2026-JASMINE-08-UIUX-P55: Global UX & Layout Physics Utilities
    ============================================================================ */
@@ -64,6 +92,22 @@ html.reading-mode-active .audit-log-container {
   max-width: 100%;
   padding-left: clamp(0.5rem, 2vw, 1.25rem);
   padding-right: clamp(0.5rem, 2vw, 1.25rem);
+}
+
+/* Modal Overlay & Mobile Viewport Responsiveness */
+.mobile-modal-viewport {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .mobile-modal-viewport {
+    max-height: calc(100dvh - 1rem);
+    border-radius: 1rem;
+  }
 }
 
 /* ضبط الحركة الاحترافية والسلاسة المطلقة للحاويات (Boundary Clamping) */

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { JasmineCelebrity, Language } from '../types';
 import { parseAndValidateJasmineVideo, JasmineVideoArchiveItem } from '../services/jasmineService';
+import { ZeroCostVideoTracker } from './ZeroCostVideoTracker';
 import {
   Video,
   Award,
@@ -15,7 +16,24 @@ import {
   ShieldCheck,
   Send,
   MessageSquare,
+  RefreshCw,
+  AlertCircle,
+  Link as LinkIcon,
 } from 'lucide-react';
+
+/**
+ * ثابِت التعبير النمطي السيادي لتدقيق الروابط المرجعية
+ */
+export const SOVEREIGN_MEDIA_URL_REGEX =
+  /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i;
+
+/**
+ * فحص صلاحية صيغة الرابط قبل تفويض الحدث
+ */
+export const isValidSovereignUrl = (url: string): boolean => {
+  if (!url || !url.trim()) return false;
+  return SOVEREIGN_MEDIA_URL_REGEX.test(url.trim());
+};
 
 export interface JasmineMediaCardProps {
   /** Full item when rendered from JasmineSectorView */
@@ -24,6 +42,7 @@ export interface JasmineMediaCardProps {
   onCopyLink?: (id: string, link: string) => void;
   copiedId?: string | null;
   onOpenUpdateModal?: (item: JasmineCelebrity) => void;
+  onUpdateLink?: (id: string, newUrl: string) => void;
   onOpenGuidanceModal?: (item?: JasmineCelebrity) => void;
   archiveHistory?: JasmineVideoArchiveItem[];
 
@@ -47,6 +66,7 @@ export const JasmineMediaCard: React.FC<JasmineMediaCardProps> = ({
   onCopyLink,
   copiedId,
   onOpenUpdateModal,
+  onUpdateLink,
   onOpenGuidanceModal,
   archiveHistory = [],
   title,
@@ -58,6 +78,28 @@ export const JasmineMediaCard: React.FC<JasmineMediaCardProps> = ({
   const isAr = lang === 'ar';
   const [isPlayingEmbedded, setIsPlayingEmbedded] = useState<boolean>(false);
   const [showArchiveModal, setShowArchiveModal] = useState<boolean>(false);
+  const [isInlineEditing, setIsInlineEditing] = useState<boolean>(false);
+  const [inputUrl, setInputUrl] = useState<string>('');
+
+  // 1. Derived URL validation state for instant visual feedback
+  const isUrlValid = useMemo(() => {
+    return isValidSovereignUrl(inputUrl);
+  }, [inputUrl]);
+
+  const isInputTouchedAndInvalid = inputUrl.trim().length > 0 && !isUrlValid;
+
+  const handleConfirmReplacement = () => {
+    if (!isUrlValid || (!onUpdateLink && !onOpenUpdateModal)) return;
+
+    if (onUpdateLink && item) {
+      onUpdateLink(item.id, inputUrl.trim());
+    } else if (onOpenUpdateModal && item) {
+      onOpenUpdateModal({ ...item, videoUrl: inputUrl.trim() });
+    }
+
+    setInputUrl('');
+    setIsInlineEditing(false);
+  };
 
   // Derive display values from either full item or direct standalone props
   const effectiveCreatorName = item?.celebrityName || creatorName || (isAr ? 'داعم إنساني' : 'Humanitarian Supporter');
@@ -247,22 +289,11 @@ export const JasmineMediaCard: React.FC<JasmineMediaCardProps> = ({
           </button>
         </div>
 
-        {/* Action Toolbar for Verified Creator Update & Historical Archive & One-Way Guidance */}
+        {/* Action Toolbar for Verified Creator Update & Historical Archive */}
         <div className="flex items-center justify-between pt-1 text-[11px] text-slate-400">
           <span className="text-slate-500 font-mono">{item?.date || new Date().toISOString().split('T')[0]}</span>
 
           <div className="flex items-center gap-2">
-            {onOpenGuidanceModal && (
-              <button
-                onClick={() => onOpenGuidanceModal(item)}
-                className="text-purple-300 hover:text-purple-200 font-semibold flex items-center gap-1 transition bg-purple-500/10 hover:bg-purple-500/20 px-2.5 py-1 rounded-lg border border-purple-500/30"
-                title={isAr ? 'نظام التواصل الهجين أحادي الاتجاه' : 'One-Way Guidance System'}
-              >
-                <MessageSquare className="w-3.5 h-3.5 text-purple-400" />
-                <span>{isAr ? 'توجيه أحادي' : 'One-Way Guidance'}</span>
-              </button>
-            )}
-
             {archiveHistory.length > 0 && (
               <button
                 onClick={() => setShowArchiveModal(!showArchiveModal)}
@@ -275,33 +306,137 @@ export const JasmineMediaCard: React.FC<JasmineMediaCardProps> = ({
               </button>
             )}
 
-            {onOpenUpdateModal && (
+            {(onOpenUpdateModal || onUpdateLink) && (
               <button
-                onClick={() => onOpenUpdateModal(item)}
+                onClick={() => {
+                  if (onOpenUpdateModal && item) {
+                    onOpenUpdateModal(item);
+                  } else {
+                    setIsInlineEditing(!isInlineEditing);
+                    if (!inputUrl && effectiveVideoUrl) {
+                      setInputUrl(effectiveVideoUrl);
+                    }
+                  }
+                }}
                 className="text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1 transition bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
               >
-                <RotateCcw className="w-3 h-3" />
+                <RefreshCw className="w-3 h-3" />
                 <span>{isAr ? 'تحديث' : 'Update'}</span>
               </button>
             )}
           </div>
         </div>
 
+        {/* Inline URL Validation & Active Link Replacement Section */}
+        {isInlineEditing && (
+          <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2">
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
+                placeholder={isAr ? 'أدخل رابط التوثيق الجديد (https://...)' : 'Enter new verification link (https://...)'}
+                className={`w-full px-3 py-1.5 pl-9 text-xs rounded-lg bg-slate-950 text-slate-100 font-mono border transition-all outline-none ${
+                  isInputTouchedAndInvalid
+                    ? 'border-rose-500/80 focus:ring-1 focus:ring-rose-500'
+                    : isUrlValid
+                    ? 'border-emerald-500/80 focus:ring-1 focus:ring-emerald-500'
+                    : 'border-slate-700 focus:border-amber-500'
+                }`}
+              />
+              <LinkIcon className="absolute left-2.5 w-3.5 h-3.5 text-slate-500" />
+            </div>
+
+            {/* Visual Error Tonal Feedback */}
+            {isInputTouchedAndInvalid && (
+              <div className="flex items-center gap-1.5 text-[11px] text-rose-400">
+                <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                <span>{isAr ? 'صيغة الرابط غير صالحة. يجب أن يبدأ بـ http:// أو https://' : 'Invalid URL format. Must start with http:// or https://'}</span>
+              </div>
+            )}
+
+            {/* Confirmation & Cancel Actions */}
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsInlineEditing(false);
+                  setInputUrl('');
+                }}
+                className="px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                {isAr ? 'إلغاء' : 'Cancel'}
+              </button>
+
+              <button
+                type="button"
+                disabled={!isUrlValid}
+                onClick={handleConfirmReplacement}
+                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-lg transition-all ${
+                  isUrlValid
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/30 cursor-pointer'
+                    : 'bg-slate-800 text-slate-500 border border-slate-700/50 cursor-not-allowed opacity-60'
+                }`}
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>{isAr ? 'تأكيد الاستبدال والأرشفة' : 'Confirm Replacement & Archive'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Historical Video Archive Drawer */}
         {showArchiveModal && archiveHistory.length > 0 && (
           <div className="mt-2 p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
-            <h4 className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
-              <History className="w-3.5 h-3.5" />
-              <span>{isAr ? 'أرشيف الروابط التاريخية الموثقة' : 'Archived Video Links'}</span>
+            <h4 className="text-[11px] font-bold text-amber-400 flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <History className="w-3.5 h-3.5" />
+                <span>{isAr ? 'أرشيف الروابط التاريخية الموثقة' : 'Archived Video Links'}</span>
+              </span>
+              <span className="text-[10px] text-slate-500 font-normal">
+                {isAr ? 'تأكيد الحفظ والأرشفة السيادية' : 'Sovereign Archival Confirmed'}
+              </span>
             </h4>
-            <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+            <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
               {archiveHistory.map((arch) => (
                 <div
                   key={arch.id}
-                  className="flex items-center justify-between bg-slate-900 p-2 rounded border border-slate-800/80 text-[11px]"
+                  className="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800/80 text-[11px] gap-2"
                 >
-                  <span className="truncate text-slate-300 font-mono max-w-[180px]">{arch.rawUrl}</span>
-                  <span className="text-slate-500 text-[10px]">{arch.submissionDate}</span>
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="truncate text-slate-300 font-mono text-[10px] max-w-[170px]" title={arch.rawUrl}>
+                      {arch.rawUrl}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-slate-500 text-[10px] font-mono mr-1">{arch.submissionDate}</span>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onCopyLink && item) {
+                          onCopyLink(item.id, arch.rawUrl);
+                        } else {
+                          navigator.clipboard.writeText(arch.rawUrl);
+                        }
+                      }}
+                      className="text-amber-400 hover:text-amber-300 p-1 rounded hover:bg-slate-800 transition"
+                      title={isAr ? 'نسخ الرابط المؤرشف' : 'Copy Archived Link'}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </button>
+
+                    <a
+                      href={arch.rawUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition"
+                      title={isAr ? 'فتح الرابط المؤرشف' : 'Open Archived Link'}
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>

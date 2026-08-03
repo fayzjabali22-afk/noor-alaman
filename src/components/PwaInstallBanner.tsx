@@ -18,8 +18,8 @@ export const PwaInstallBanner: React.FC<PwaInstallBannerProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-teal-500/30 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-slate-900 border border-teal-500/30 rounded-2xl max-w-md w-full p-4 sm:p-6 space-y-4 shadow-2xl relative my-auto mobile-modal-viewport">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <Download className="w-5 h-5 text-teal-400" />

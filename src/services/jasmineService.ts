@@ -81,6 +81,8 @@ export interface JasmineOnboardingData {
   humanitarianPledgeAgreed: boolean;
   humanitarianStatement: string;
   endorsedCampaign: string;
+  isAnonymous?: boolean;
+  aliasName?: string;
   step1: {
     adoptedChannels: AdoptedChannelSupport[]; // شرط: length >= 2
   };

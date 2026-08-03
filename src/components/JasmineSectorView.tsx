@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { JasmineCelebrity, Language } from '../types';
 import { translations } from '../lib/i18n';
 import {
@@ -26,6 +26,7 @@ import {
   Compass,
   MessageSquare,
   ShieldCheck,
+  Video,
 } from 'lucide-react';
 
 interface JasmineSectorViewProps {
@@ -64,14 +65,16 @@ export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
   // Account Verification Guard check
   const isAccountVerified = accountVerificationStatus === 'VERIFIED';
 
-  const handleCopyLink = (id: string, link: string) => {
-    navigator.clipboard.writeText(link);
+  const handleCopyLink = useCallback((id: string, link: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(link).catch(() => {});
+    }
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2500);
-  };
+  }, []);
 
   // Dynamic Link Replacement Handler
-  const handleUpdateActiveLink = (e: React.FormEvent) => {
+  const handleUpdateActiveLink = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!updatingCelebrity) return;
 
@@ -110,7 +113,30 @@ export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
     } catch (err: any) {
       setFormError(err.message || (isAr ? 'حدث خطأ أثناء استبدال الرابط' : 'Error replacing link'));
     }
-  };
+  }, [updatingCelebrity, isAccountVerified, isAr, newVideoUrl, newStatement, setCelebrities]);
+
+  const memoizedCelebrityList = useMemo(() => {
+    return celebrities.map((item) => (
+      <JasmineMediaCard
+        key={item.id}
+        item={item}
+        copiedId={copiedId}
+        onCopyLink={handleCopyLink}
+        onOpenUpdateModal={(celebrity) => {
+          setUpdatingCelebrity(celebrity);
+          setNewVideoUrl(celebrity.videoUrl);
+          setNewStatement(celebrity.humanitarianStatement);
+          setFormError(null);
+        }}
+        onOpenGuidanceModal={(celebrity) => {
+          if (celebrity) setSelectedCelebrityForGuidance(celebrity);
+          setShowGuidanceModal(true);
+        }}
+        archiveHistory={archivesMap[item.id] || []}
+        lang={lang}
+      />
+    ));
+  }, [celebrities, copiedId, handleCopyLink, archivesMap, lang]);
 
   return (
     <div className="space-y-8">
@@ -130,25 +156,27 @@ export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto shrink-0">
             <button
               onClick={() => {
-                setShowOnboardingWizard(true);
+                setSelectedCelebrityForGuidance(celebrities[0] || null);
+                setShowGuidanceModal(true);
               }}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-amber-300 font-bold px-4 py-2.5 rounded-xl text-xs border border-amber-500/30 transition shadow-lg"
+              className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-bold px-4 py-3 rounded-xl text-xs sm:text-sm transition shadow-xl shadow-purple-900/40 border border-purple-400/30 cursor-pointer w-full sm:w-auto"
+              title={isAr ? 'فتح لوحة صياغة وإرسال التوجيه أحادي الاتجاه' : 'Open One-Way Direct Guidance Panel'}
             >
-              <Compass className="w-4 h-4 text-amber-400" />
-              <span>{isAr ? 'دليل الاعتماد والانضمام' : 'Onboarding Guide'}</span>
+              <MessageSquare className="w-4 h-4 text-purple-200 shrink-0" />
+              <span className="truncate">{isAr ? 'لوحة التوجيه المباشر (إرسال التوجيه)' : 'Direct Guidance Panel'}</span>
             </button>
 
             <button
               onClick={() => {
                 setShowOnboardingWizard(true);
               }}
-              className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-lg"
+              className="flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-black px-4 sm:px-5 py-3 rounded-xl text-xs sm:text-sm transition shadow-xl shadow-amber-500/20 border border-amber-300/40 w-full sm:w-auto"
             >
-              <Share2 className="w-4 h-4" />
-              <span>{t.createBioLink}</span>
+              <Sparkles className="w-4 h-4 text-slate-950 animate-pulse shrink-0" />
+              <span className="truncate">{isAr ? 'انضمام كفلاء قطاع الياسمين (معالج التوثيق والاعتماد)' : 'Join Jasmine Sector'}</span>
             </button>
           </div>
         </div>
@@ -296,28 +324,25 @@ export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
       )}
 
       {/* Celebrities List Grid (Zero-Cost Embedded Cards) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {celebrities.map((item) => (
-          <JasmineMediaCard
-            key={item.id}
-            item={item}
-            copiedId={copiedId}
-            onCopyLink={handleCopyLink}
-            onOpenUpdateModal={(celebrity) => {
-              setUpdatingCelebrity(celebrity);
-              setNewVideoUrl(celebrity.videoUrl);
-              setNewStatement(celebrity.humanitarianStatement);
-              setFormError(null);
-            }}
-            onOpenGuidanceModal={(celebrity) => {
-              if (celebrity) setSelectedCelebrityForGuidance(celebrity);
-              setShowGuidanceModal(true);
-            }}
-            archiveHistory={archivesMap[item.id] || []}
-            lang={lang}
-          />
-        ))}
-      </div>
+      {celebrities.length === 0 ? (
+        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-12 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/20">
+            <Video className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-bold text-slate-200">
+            {isAr ? 'لا توجد بطاقات وسائط مسجلة حالياً' : 'No Media Cards Registered Yet'}
+          </h3>
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
+            {isAr
+              ? 'يمكن للمشاهير والشخصيات العامة الانضمام وتوثيق بيانات الرعاية الإنسانية عبر زر الانضمام الموحد أعلى الصفحة.'
+              : 'Public figures can join and record humanitarian support via the top onboarding button.'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {memoizedCelebrityList}
+        </div>
+      )}
     </div>
   );
 };

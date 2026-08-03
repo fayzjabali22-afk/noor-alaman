@@ -126,8 +126,8 @@ export const JasmineOneWayGuidanceModal: React.FC<JasmineOneWayGuidanceModalProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl relative text-slate-100 my-8">
+    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-slate-900 border border-amber-500/40 rounded-2xl max-w-2xl w-full p-3.5 sm:p-6 space-y-4 sm:space-y-6 shadow-2xl relative text-slate-100 my-auto mobile-modal-viewport">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-slate-800 pb-4">
           <div>
@@ -342,13 +342,18 @@ export const JasmineOneWayGuidanceModal: React.FC<JasmineOneWayGuidanceModalProp
             </div>
           )}
 
-          <div className="flex items-center justify-end pt-2">
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-[10px] text-slate-400 flex items-center gap-1">
+              <Lock className="w-3 h-3 text-purple-400" />
+              <span>{isAr ? 'تصل كإشعار رسمي دون إظهار بريدك الشخصي (No DMs)' : 'Official notification without exposing private inbox (No DMs)'}</span>
+            </span>
+
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold transition shadow-lg flex items-center gap-2"
+              className="px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-95 text-white text-xs font-black transition-all shadow-xl shadow-purple-900/50 flex items-center gap-2 border border-purple-400/30 cursor-pointer"
             >
-              <Send className="w-3.5 h-3.5" />
-              <span>{isAr ? 'إرسال الملاحظة الموجهة' : 'Dispatch Direct Guidance'}</span>
+              <Send className="w-4 h-4 text-purple-200" />
+              <span>{isAr ? 'إرسال التوجيه المباشر' : 'Send Direct Guidance'}</span>
             </button>
           </div>
         </form>
