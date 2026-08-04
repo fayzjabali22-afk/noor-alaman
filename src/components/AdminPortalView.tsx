@@ -28,6 +28,7 @@ import { apiAdapter } from '../services/apiAdapter';
 import { ErrorDictionaryExplorer } from './ErrorDictionaryExplorer';
 import {
   SlidersHorizontal,
+  History as HistoryIcon,
   ShieldCheck,
   ShieldAlert,
   AlertTriangle,
@@ -105,7 +106,8 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     try {
       return localStorage.getItem('noor_admin_logged_in') === 'true';
-    } catch {
+    } catch (err) {
+      console.warn('LocalStorage read warning in AdminPortalView:', err);
       return false;
     }
   });
@@ -1045,9 +1047,9 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({
 
         // Add publishers in each sector stage
         publishers.forEach((p) => {
-          if (p.stage === 'JASMINE') jasmineCount += 1;
-          else if (p.stage === 'DALAL') dalalCount += 1;
-          else if (p.stage === 'RAEDA') raedaCount += 1;
+          if (p.lifecycleStage === 'DALAL_TRANSITION' || (p as any).stage === 'JASMINE') jasmineCount += 1;
+          else if (p.lifecycleStage === 'STABILIZATION' || (p as any).stage === 'DALAL') dalalCount += 1;
+          else if (p.lifecycleStage === 'RAEDA_SUCCESS' || (p as any).stage === 'RAEDA') raedaCount += 1;
         });
 
         const totalSectorRecords = jasmineCount + dalalCount + raedaCount;
@@ -1985,7 +1987,7 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({
                     {report.status}
                   </span>
                 </div>
-                <p className="text-xs text-slate-300">{report.details}</p>
+                <p className="text-xs text-slate-300">{report.evidenceDetails || (report as any).details}</p>
 
                 {report.status !== 'RESOLVED' && (
                   <button
@@ -2069,7 +2071,7 @@ export const AdminPortalView: React.FC<AdminPortalViewProps> = ({
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
               <div>
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <History className="w-4 h-4 text-amber-400" />
+                  <HistoryIcon className="w-4 h-4 text-amber-400" />
                   <span>محرك مسح خمول القنوات والتخفيض العادل (Dormant Channel Sweeper - 45 Days)</span>
                 </h4>
                 <p className="text-xs text-slate-400 mt-0.5">

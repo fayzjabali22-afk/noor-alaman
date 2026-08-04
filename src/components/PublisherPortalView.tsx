@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Publisher, Language, CategoryType, PlatformType } from '../types';
 import { translations, getCategoryLabel } from '../lib/i18n';
-import { calculatePublisherFairScore, defaultFairEngineWeights } from '../lib/fairEngine';
+import { useFairEngine } from '../hooks/useFairEngine';
 import { TrustBadge } from './TrustBadge';
 import {
   UserCheck,
@@ -28,6 +28,7 @@ export const PublisherPortalView: React.FC<PublisherPortalViewProps> = ({
   lang,
 }) => {
   const t = translations[lang];
+  const { calculateScore } = useFairEngine(publishers);
 
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -305,7 +306,7 @@ export const PublisherPortalView: React.FC<PublisherPortalViewProps> = ({
                   <h4 className="font-bold text-white flex items-center gap-1.5 flex-wrap">
                     <span>{p.name}</span>
                     <TrustBadge
-                      score={calculatePublisherFairScore(p, defaultFairEngineWeights)}
+                      score={calculateScore(p)}
                       lang={lang}
                       size="sm"
                       hasPendingReports={p.reportsCount > 0}

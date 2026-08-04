@@ -121,7 +121,8 @@ export class SovereignServiceAdapter {
     try {
       const res = await fetch('/api/health');
       return await res.json();
-    } catch {
+    } catch (error) {
+      console.warn('Health check fallback triggered in apiAdapter:', error);
       return { status: 'DEGRADED', timestamp: Date.now() };
     }
   }

@@ -54,7 +54,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
       // Step 2: Query API fallback
       const result = await apiAdapter.queryAiAssistant({
         prompt: finalPrompt,
-        language: lang,
+        language: lang === 'en' ? 'en' : 'ar',
       });
 
       const reply = result.response || (lang === 'ar' ? 'تعذر الحصول على إجابة من المساعد حالياً.' : 'Failed to retrieve response.');

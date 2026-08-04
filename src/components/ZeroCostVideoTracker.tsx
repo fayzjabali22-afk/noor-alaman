@@ -78,10 +78,12 @@ export const ZeroCostVideoTracker: React.FC<ZeroCostVideoTrackerProps> = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: videoUrl, refId: referralId || 'DIRECT_GUIDANCE', timestamp: Date.now() }),
           keepalive: true,
-        }).catch(() => {});
+        }).catch((err) => {
+          console.warn('Telemetry beacon warning in Noor Al-Amani:', err);
+        });
       }
-    } catch {
-      // حماية التوجيه: لا يتم إيقاف فتح الصفحة حتى لو فشل التتبع
+    } catch (error) {
+      console.error('Error in ZeroCostVideoTracker Module:', error);
     }
 
     // ب) تفويض الحدث الخارجي للمكون الأب إن وجد

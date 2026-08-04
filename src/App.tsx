@@ -25,6 +25,7 @@ import { defaultFairEngineWeights } from './lib/fairEngine';
 import { isRTL } from './lib/i18n';
 import { apiAdapter } from './services/apiAdapter';
 import { sectorInterconnector } from './services/sectorInterconnector';
+import { cronSterilizationService } from './services/cronSterilizationService';
 
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -44,6 +45,7 @@ import { PwaInstallBanner } from './components/PwaInstallBanner';
 import { FairEngineConfigModal } from './components/FairEngineConfigModal';
 import { FocusedModeView } from './components/FocusedModeView';
 import { BlogArticleModal } from './components/BlogArticleModal';
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 import { AppSettingsModal } from './components/AppSettingsModal';
 
 export default function App() {
@@ -52,7 +54,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_lang');
       return (saved === 'en' || saved === 'ar') ? saved : 'ar';
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_lang:', error);
       return 'ar';
     }
   });
@@ -61,7 +64,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_role');
       return (saved as UserRole) || 'SUPPORTER';
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_role:', error);
       return 'SUPPORTER';
     }
   });
@@ -69,7 +73,8 @@ export default function App() {
   const [isReadingMode, setIsReadingMode] = useState<boolean>(() => {
     try {
       return localStorage.getItem('noor_reading_mode') === 'true';
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_reading_mode:', error);
       return false;
     }
   });
@@ -79,7 +84,8 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<string>(() => {
     try {
       return localStorage.getItem('noor_current_tab') || 'admin';
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_current_tab:', error);
       return 'admin';
     }
   });
@@ -89,7 +95,7 @@ export default function App() {
     try {
       localStorage.setItem('noor_current_tab', tab);
     } catch (err) {
-      console.error(err);
+      console.error('LocalStorage write error for noor_current_tab:', err);
     }
   };
 
@@ -97,7 +103,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_publishers');
       return saved ? JSON.parse(saved) : initialPublishers;
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_publishers:', error);
       return initialPublishers;
     }
   });
@@ -110,7 +117,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_verification_queue');
       return saved ? JSON.parse(saved) : initialVerificationQueue;
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_verification_queue:', error);
       return initialVerificationQueue;
     }
   });
@@ -119,7 +127,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_reports');
       return saved ? JSON.parse(saved) : initialReports;
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_reports:', error);
       return initialReports;
     }
   });
@@ -128,7 +137,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_audit_logs');
       return saved ? JSON.parse(saved) : initialAuditLogs;
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_audit_logs:', error);
       return initialAuditLogs;
     }
   });
@@ -137,7 +147,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_supporter_actions');
       return saved ? JSON.parse(saved) : [];
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_supporter_actions:', error);
       return [];
     }
   });
@@ -146,7 +157,8 @@ export default function App() {
     try {
       const saved = localStorage.getItem('noor_fair_weights');
       return saved ? JSON.parse(saved) : defaultFairEngineWeights;
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_fair_weights:', error);
       return defaultFairEngineWeights;
     }
   });
@@ -194,7 +206,8 @@ export default function App() {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
       if (isStandalone) return true;
       return localStorage.getItem('noor_pwa_installed') === 'true';
-    } catch {
+    } catch (error) {
+      console.warn('LocalStorage read warning for noor_pwa_installed:', error);
       return false;
     }
   });
@@ -261,7 +274,14 @@ export default function App() {
     const cleanup = sectorInterconnector.registerAuditSyncListener((newAuditLog) => {
       setAuditLogs((prev) => [newAuditLog, ...prev]);
     });
-    return cleanup;
+
+    // Start background Cron Sterilization Sweeper (CMD-2026-0730-CRON-JOB-STERILIZATION-108)
+    cronSterilizationService.startBackgroundSterilization();
+
+    return () => {
+      cleanup();
+      cronSterilizationService.stopBackgroundSterilization();
+    };
   }, []);
 
   // Record supporter action
@@ -289,7 +309,9 @@ export default function App() {
       publisherId: newReport.publisherId,
       reason: newReport.reason,
       details: newReport.evidenceDetails,
-    }).catch(() => {});
+    }).catch((err) => {
+      console.warn('Report submit API warning in App.tsx:', err);
+    });
 
     const newAudit: AuditLog = {
       id: `aud-${Date.now()}`,
@@ -330,91 +352,111 @@ export default function App() {
       {/* Main App Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 md:py-8 pb-24 md:pb-8">
         {currentTab === 'home' && (
-          <HomeScreenView
-            lang={lang}
-            onNavigateTab={handleTabChange}
-            totalPublishersCount={publishers.length}
-            totalVisitsCount={totalVisitsCount}
-            dalalCount={dalalChannels.length}
-            raedaCount={raedaArchive.length}
-            spotlightPublisher={spotlightPublisher}
-            publishers={publishers}
-            onOpenBlogModal={() => setIsBlogModalOpen(true)}
-          />
+          <GlobalErrorBoundary moduleName="HomeScreenView" fallbackTitleAr="تعثر مؤقت في عرض الشاشة الرئيسية">
+            <HomeScreenView
+              lang={lang}
+              onNavigateTab={handleTabChange}
+              totalPublishersCount={publishers.length}
+              totalVisitsCount={totalVisitsCount}
+              dalalCount={dalalChannels.length}
+              raedaCount={raedaArchive.length}
+              spotlightPublisher={spotlightPublisher}
+              publishers={publishers}
+              onOpenBlogModal={() => setIsBlogModalOpen(true)}
+            />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'core' && (
-          <CorePlatformView
-            publishers={publishers}
-            setPublishers={setPublishers}
-            weights={fairEngineWeights}
-            lang={lang}
-            onRecordAction={handleRecordAction}
-            onOpenFairEngineConfig={() => setIsFairEngineModalOpen(true)}
-            onOpenFocusMode={() => setIsFocusModeOpen(true)}
-          />
+          <GlobalErrorBoundary moduleName="CorePlatformView" fallbackTitleAr="تعثر مؤقت في مفاعل التكافؤ النمو">
+            <CorePlatformView
+              publishers={publishers}
+              setPublishers={setPublishers}
+              weights={fairEngineWeights}
+              lang={lang}
+              onRecordAction={handleRecordAction}
+              onOpenFairEngineConfig={() => setIsFairEngineModalOpen(true)}
+              onOpenFocusMode={() => setIsFocusModeOpen(true)}
+            />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'jasmine' && (
-          <JasmineSectorView
-            celebrities={celebrities}
-            setCelebrities={setCelebrities}
-            lang={lang}
-          />
+          <GlobalErrorBoundary moduleName="JasmineSectorView" fallbackTitleAr="تعثر مؤقت في قطاع الياسمين">
+            <JasmineSectorView
+              celebrities={celebrities}
+              setCelebrities={setCelebrities}
+              lang={lang}
+            />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'dalal' && (
-          <DalalSectorView channels={dalalChannels} lang={lang} />
+          <GlobalErrorBoundary moduleName="DalalSectorView" fallbackTitleAr="تعثر مؤقت في قطاع دلال">
+            <DalalSectorView channels={dalalChannels} lang={lang} />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'raeda' && (
-          <RaedaSectorView archiveList={raedaArchive} lang={lang} />
+          <GlobalErrorBoundary moduleName="RaedaSectorView" fallbackTitleAr="تعثر مؤقت في قطاع رائدة">
+            <RaedaSectorView archiveList={raedaArchive} lang={lang} />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'publisher' && (
-          <PublisherPortalView
-            publishers={publishers}
-            setPublishers={setPublishers}
-            lang={lang}
-          />
+          <GlobalErrorBoundary moduleName="PublisherPortalView" fallbackTitleAr="تعثر مؤقت في بوابة الناشرين">
+            <PublisherPortalView
+              publishers={publishers}
+              setPublishers={setPublishers}
+              lang={lang}
+            />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'supporter' && (
-          <SupporterPortalView
-            supporterActions={supporterActions}
-            publishers={publishers}
-            setPublishers={setPublishers}
-            weights={fairEngineWeights}
-            lang={lang}
-            onRecordAction={handleRecordAction}
-            onAddReport={handleAddReport}
-          />
+          <GlobalErrorBoundary moduleName="SupporterPortalView" fallbackTitleAr="تعثر مؤقت في جناح الكفالة والداعمين">
+            <SupporterPortalView
+              supporterActions={supporterActions}
+              publishers={publishers}
+              setPublishers={setPublishers}
+              weights={fairEngineWeights}
+              lang={lang}
+              onRecordAction={handleRecordAction}
+              onAddReport={handleAddReport}
+            />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'analytics' && (
-          <AnalyticsView publishers={publishers} lang={lang} />
+          <GlobalErrorBoundary moduleName="AnalyticsView" fallbackTitleAr="تعثر مؤقت في شاشة التحليلات">
+            <AnalyticsView publishers={publishers} lang={lang} />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'errors' && (
-          <ErrorDictionaryExplorer lang={lang} />
+          <GlobalErrorBoundary moduleName="ErrorDictionaryExplorer" fallbackTitleAr="تعثر مؤقت في معجم الأخطاء">
+            <ErrorDictionaryExplorer lang={lang} />
+          </GlobalErrorBoundary>
         )}
 
         {currentTab === 'admin' && (
-          <AdminPortalView
-            weights={fairEngineWeights}
-            setWeights={setFairEngineWeights}
-            verificationQueue={verificationQueue}
-            setVerificationQueue={setVerificationQueue}
-            reports={reports}
-            setReports={setReports}
-            auditLogs={auditLogs}
-            setAuditLogs={setAuditLogs}
-            publishers={publishers}
-            setPublishers={setPublishers}
-            lang={lang}
-            isReadingMode={isReadingMode}
-            onToggleReadingMode={setIsReadingMode}
-          />
+          <GlobalErrorBoundary moduleName="AdminPortalView" fallbackTitleAr="تعثر مؤقت في غرفة العمليات والتحكم">
+            <AdminPortalView
+              weights={fairEngineWeights}
+              setWeights={setFairEngineWeights}
+              verificationQueue={verificationQueue}
+              setVerificationQueue={setVerificationQueue}
+              reports={reports}
+              setReports={setReports}
+              auditLogs={auditLogs}
+              setAuditLogs={setAuditLogs}
+              publishers={publishers}
+              setPublishers={setPublishers}
+              lang={lang}
+              isReadingMode={isReadingMode}
+              onToggleReadingMode={setIsReadingMode}
+            />
+          </GlobalErrorBoundary>
         )}
       </main>
 

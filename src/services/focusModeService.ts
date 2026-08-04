@@ -26,8 +26,8 @@ export class FocusModeService {
       if (saved) {
         return { ...DEFAULT_FOCUS_PREFERENCES, ...JSON.parse(saved) };
       }
-    } catch {
-      // Fallback
+    } catch (error) {
+      console.warn('LocalStorage read warning for focus preferences:', error);
     }
     return DEFAULT_FOCUS_PREFERENCES;
   }
@@ -38,8 +38,8 @@ export class FocusModeService {
   public static savePreferences(prefs: FocusModePreferences): void {
     try {
       localStorage.setItem(STORAGE_KEY_PREFS, JSON.stringify(prefs));
-    } catch {
-      // Silent error handling
+    } catch (error) {
+      console.warn('LocalStorage save warning for focus preferences:', error);
     }
   }
 

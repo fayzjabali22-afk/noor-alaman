@@ -2,6 +2,9 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": ["@typescript-eslint"],
+  "rules": {
+    "no-empty": "error"
+  },
   "overrides": [
     {
       "files": ["src/components/**/*"],

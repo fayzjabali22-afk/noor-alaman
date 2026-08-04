@@ -46,7 +46,8 @@ export const BlogArticleModal: React.FC<BlogArticleModalProps> = ({
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    } catch {
+    } catch (err) {
+      console.warn('Clipboard write error in BlogArticleModal:', err);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }

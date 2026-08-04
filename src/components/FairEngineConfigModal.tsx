@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { FairEngineWeights, Language } from '../types';
 import { translations } from '../lib/i18n';
 import { defaultFairEngineWeights } from '../lib/fairEngine';
@@ -21,14 +21,18 @@ export const FairEngineConfigModal: React.FC<FairEngineConfigModalProps> = ({
 }) => {
   const t = translations[lang];
 
-  if (!isOpen) return null;
-
-  const handleChange = (key: keyof FairEngineWeights, val: number) => {
+  const handleChange = useCallback((key: keyof FairEngineWeights, val: number) => {
     setWeights((prev) => ({
       ...prev,
       [key]: val,
     }));
-  };
+  }, [setWeights]);
+
+  const handleReset = useCallback(() => {
+    setWeights(defaultFairEngineWeights);
+  }, [setWeights]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -111,7 +115,7 @@ export const FairEngineConfigModal: React.FC<FairEngineConfigModalProps> = ({
 
         <div className="flex items-center justify-between gap-3 pt-2">
           <button
-            onClick={() => setWeights(defaultFairEngineWeights)}
+            onClick={handleReset}
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white"
           >
             <RotateCcw className="w-3.5 h-3.5" />

@@ -107,9 +107,22 @@ export class SectorInterconnectorService {
       });
     });
 
+    const unsubAuditAdded = eventBus.subscribe('AUDIT_LOG_ADDED', (event) => {
+      const data = event.payload as { id: string; timestamp: string; action: string; actor: string; details: string };
+      addAuditLog({
+        id: data.id || `aud-cron-${Date.now()}`,
+        timestamp: data.timestamp || new Date().toISOString(),
+        actor: data.actor || 'المكنسة البرمجية (Cron Sweeper)',
+        role: 'SYSTEM',
+        action: data.action || 'تطهير وصيانة السجلات العالقة',
+        details: data.details || 'تم تنفيذ دورة تطهير السجلات العالقة وتفريغ التخزين المؤقت وحذف الخلايا الميتة',
+      });
+    });
+
     return () => {
       unsubVisit();
       unsubReport();
+      unsubAuditAdded();
     };
   }
 }

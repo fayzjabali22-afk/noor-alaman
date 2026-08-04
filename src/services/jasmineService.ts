@@ -223,7 +223,8 @@ export const sanitizeAndValidateUrl = (rawUrl: string): { isSafe: boolean; sanit
       isSafe: isDomainAllowed,
       sanitizedUrl: isDomainAllowed ? parsedUrl.toString() : '',
     };
-  } catch {
+  } catch (error) {
+    console.warn('Sanitize URL parsing warning in jasmineService:', error);
     return { isSafe: false, sanitizedUrl: '' };
   }
 };
@@ -363,7 +364,8 @@ export const validateOEmbedMetadata = async (
       title: fallbackTitle,
       thumbnailUrl: fallbackThumbnail,
     };
-  } catch {
+  } catch (error) {
+    console.warn('OEmbed video verification warning in jasmineService:', error);
     return {
       success: false,
       error: 'فشل التثبت التلقائي من حالة الفيديو',
@@ -445,7 +447,8 @@ export function sanitizeExternalUrl(rawUrl: string): string | null {
     );
 
     return isApproved ? parsedUrl.toString() : null;
-  } catch {
+  } catch (error) {
+    console.warn('URL parsing warning in sanitizeExternalUrl:', error);
     return null; // رابط غير صالح
   }
 }

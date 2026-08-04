@@ -12,7 +12,7 @@ import {
   getCategoryLabel,
   getLifecycleLabel,
 } from '../lib/i18n';
-import { calculatePublisherFairScore } from '../lib/fairEngine';
+import { useFairEngine } from '../hooks/useFairEngine';
 import { TrustBadge } from './TrustBadge';
 import {
   Search,
@@ -82,11 +82,13 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
     }
   };
 
+  const { calculateScore } = useFairEngine(publishers, weights);
+
   // Filter & Sort
   const processedPublishers = useMemo(() => {
     let list = publishers.map((p) => ({
       ...p,
-      fairScore: calculatePublisherFairScore(p, weights),
+      fairScore: calculateScore(p),
     }));
 
     // Search filter
@@ -121,7 +123,7 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
     }
 
     return list;
-  }, [publishers, searchQuery, selectedCategory, selectedPlatform, sortBy, weights]);
+  }, [publishers, searchQuery, selectedCategory, selectedPlatform, sortBy, calculateScore]);
 
   // Handle Outbound Redirection Click
   const handleConfirmOutbound = () => {
@@ -340,10 +342,10 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
                           openReportsCount={publisher.reportsCount}
                         />
                         {publisher.verificationLevel === 'PLATINUM' && (
-                          <ShieldCheck className="w-4 h-4 text-sky-400" title="Platinum Verified" />
+                          <span title="Platinum Verified"><ShieldCheck className="w-4 h-4 text-sky-400" /></span>
                         )}
                         {publisher.verificationLevel === 'GOLD' && (
-                          <CheckCircle2 className="w-4 h-4 text-amber-400" title="Gold Verified" />
+                          <span title="Gold Verified"><CheckCircle2 className="w-4 h-4 text-amber-400" /></span>
                         )}
                       </h3>
                       <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
