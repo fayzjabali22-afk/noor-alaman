@@ -79,6 +79,15 @@ export default function App() {
     }
   });
 
+  const [isGhostMode, setIsGhostMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('noor_supporter_ghost_mode') === 'true';
+    } catch (error) {
+      console.warn('LocalStorage read warning for ghost mode:', error);
+      return false;
+    }
+  });
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [currentTab, setCurrentTab] = useState<string>(() => {
@@ -387,6 +396,7 @@ export default function App() {
               celebrities={celebrities}
               setCelebrities={setCelebrities}
               lang={lang}
+              isGhostMode={isGhostMode}
             />
           </GlobalErrorBoundary>
         )}

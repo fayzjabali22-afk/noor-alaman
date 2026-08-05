@@ -1,4 +1,5 @@
 import { JasmineCelebrity, PlatformType } from '../types';
+import { apiAdapter } from './apiAdapter';
 
 export interface AdoptedChannelSupport {
   channelId: string;
@@ -451,4 +452,22 @@ export function sanitizeExternalUrl(rawUrl: string): string | null {
     console.warn('URL parsing warning in sanitizeExternalUrl:', error);
     return null; // رابط غير صالح
   }
+}
+
+/**
+  * [NA-HARMONIZATION-BRIDGE]
+  * Bridges Jasmine Endorsements directly with the Sovereign Vault records via apiAdapter
+  */
+export async function syncJasmineEndorsementToVault(
+  celebrityId: string,
+  celebrityName: string,
+  endorsedCampaign?: string,
+  isGhostMode?: boolean
+) {
+  return await apiAdapter.syncJasmineToVault({
+    celebrityId,
+    celebrityName,
+    endorsedCampaign,
+    isGhostMode,
+  });
 }

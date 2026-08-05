@@ -53,6 +53,7 @@ export interface JasmineMediaCardProps {
   platformName?: string;
   creatorName?: string;
   fallbackUrl?: string;
+  isGhostMode?: boolean;
 }
 
 /**
@@ -61,7 +62,7 @@ export interface JasmineMediaCardProps {
  * directly from YouTube / TikTok / Instagram / Facebook / X / Vimeo without server video streaming or cloud costs.
  * Compliant with NA-DUMB-UI-CONSTRAINT-001 & Protocol 88.
  */
-export const JasmineMediaCard: React.FC<JasmineMediaCardProps> = ({
+export const JasmineMediaCard: React.FC<JasmineMediaCardProps> = React.memo(({
   item,
   lang = 'ar',
   onCopyLink,
@@ -472,5 +473,7 @@ export const JasmineMediaCard: React.FC<JasmineMediaCardProps> = ({
       )}
     </>
   );
-};
+});
+
+JasmineMediaCard.displayName = 'JasmineMediaCard';
 

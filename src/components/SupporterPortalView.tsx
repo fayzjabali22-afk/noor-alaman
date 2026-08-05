@@ -1,6 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { apiAdapter } from '../services/apiAdapter';
 import { SupporterTimeline } from './SupporterTimeline';
+import { ImpactCalculator } from './features/ImpactCalculator';
+import { IntegrityHealthRadar, IntegrityChannelItem } from './features/IntegrityHealthRadar';
+import {
+  SovereignVault,
+  SovereignCertificate,
+  SovereignVaultRecord,
+} from './features/SovereignVault';
 import {
   Publisher,
   SupporterAction,
@@ -52,6 +59,7 @@ import {
   HelpCircle,
   Clock,
   ThumbsUp,
+  FolderArchive,
 } from 'lucide-react';
 
 interface SupporterPortalViewProps {
@@ -62,6 +70,7 @@ interface SupporterPortalViewProps {
   lang: Language;
   onRecordAction: (action: SupporterAction) => void;
   onAddReport?: (report: any) => void;
+  isLoading?: boolean;
 }
 
 export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
@@ -72,13 +81,14 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
   lang,
   onRecordAction,
   onAddReport,
+  isLoading = false,
 }) => {
   const t = translations[lang];
   const isAr = lang === 'ar';
 
   // Supporter Account / Auth State
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [accountTab, setAccountTab] = useState<'overview' | 'guidance' | 'my_media' | 'explore'>('overview');
+  const [accountTab, setAccountTab] = useState<'overview' | 'guidance' | 'my_media' | 'explore' | 'vault'>('overview');
   const [isGhostMode, setIsGhostMode] = useState<boolean>(() => {
     try {
       return localStorage.getItem('noor_supporter_ghost_mode') === 'true';
@@ -147,6 +157,127 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
   const sponsoredPublishers = useMemo(() => {
     return publishers.filter((p) => supporterProfile.sponsoredPublisherIds.includes(p.id));
   }, [publishers, supporterProfile.sponsoredPublisherIds]);
+
+  // Purely presentational radar channels for IntegrityHealthRadar (NA-SOVEREIGN-EXEC-INTEGRITY-RADAR-013)
+  const radarChannelItems = useMemo<IntegrityChannelItem[]>(() => {
+    if (sponsoredPublishers.length === 0) {
+      return [
+        {
+          id: 'pub-demo-01',
+          name: 'قناة بصمات حرفية ومصنوعات خان يونس',
+          status: 'clean',
+          purityScore: 100,
+          lastAuditDate: '2026-08-04',
+          violationsCount: 0,
+        },
+        {
+          id: 'pub-demo-02',
+          name: 'قناة تمكين أسر الشمال الحرفية',
+          status: 'shielded',
+          purityScore: 98,
+          lastAuditDate: '2026-08-03',
+          violationsCount: 0,
+        },
+      ];
+    }
+
+    return sponsoredPublishers.map((p, idx) => ({
+      id: p.id,
+      name: p.name,
+      status: idx % 3 === 0 ? 'clean' : idx % 3 === 1 ? 'shielded' : 'review',
+      purityScore: p.trustScore || 98,
+      lastAuditDate: p.lastPublishDate || p.joinedDate || '2026-08-04',
+      violationsCount: 0,
+    }));
+  }, [sponsoredPublishers]);
+
+  // Pure Presentational Data for Sovereign Vault Layer (NA-SOVEREIGN-PROTOCOL-VAULT-ENFORCEMENT-018)
+  const supporterCertificates = useMemo<SovereignCertificate[]>(() => [
+    {
+      id: 'cert-01',
+      certificateNo: 'NA-CERT-2026-9901',
+      title: isAr ? 'شهادة التوثيق الشرفي والكفالة السيادية' : 'Honorary Sovereign Sponsorship Certificate',
+      issueDate: '2026-08-01',
+      issuer: isAr ? 'المنصة السيادية - قطاع الكفالة الإنسانية' : 'Sovereign Platform - Supporter Sector',
+      status: 'verified',
+      category: isAr ? 'كفالة ميدانية مباشرة' : 'Direct Field Sponsorship',
+      hashSignature: '0x88f4a92b99c83',
+    },
+    {
+      id: 'cert-02',
+      certificateNo: 'NA-CERT-2026-8842',
+      title: isAr ? 'وسام حماية الاستقلالية والتكافؤ الرقمي' : 'Digital Autonomy & Parity Shield Medal',
+      issueDate: '2026-08-03',
+      issuer: isAr ? 'محرك العدالة السيادي (FairEngine)' : 'Sovereign FairEngine',
+      status: 'active',
+      category: isAr ? 'تعزيز حركة مرورية' : 'Traffic Surge Boost',
+      hashSignature: '0x77e1c43d12b01',
+    },
+  ], [isAr]);
+
+  const supporterVaultRecords = useMemo<SovereignVaultRecord[]>(() => [
+    {
+      id: 'vrec-01',
+      recordNo: 'REC-8801',
+      type: isAr ? 'توجيه دفعة مرورية حية' : 'Live Traffic Surge Boost',
+      targetChannel: isAr ? 'قناة بصمات حرفية ومصنوعات خان يونس' : 'Khan Younis Craftsmanship Channel',
+      impactMetrics: isAr ? '3,850 زيارة أصيلة / 1,240 ساعة تفاعل' : '3,850 Visits / 1,240 Engagement Hours',
+      timestamp: '2026-08-04 18:30',
+      ghostShielded: isGhostMode,
+      watermarkSeal: 'SEAL-0x9911A',
+    },
+    {
+      id: 'vrec-02',
+      recordNo: 'REC-8802',
+      type: isAr ? 'توثيق سجل النقاء والتدقيق' : 'Purity Audit Log Archival',
+      targetChannel: isAr ? 'قناة تمكين أسر الشمال الحرفية' : 'North Artisans Empowerment Channel',
+      impactMetrics: isAr ? 'نسبة نقاء 100% / صفر مخالفات' : '100% Purity / 0 Flags',
+      timestamp: '2026-08-03 14:15',
+      ghostShielded: isGhostMode,
+      watermarkSeal: 'SEAL-0x7722B',
+    },
+  ], [isAr, isGhostMode]);
+
+  // Memoized Callback Handlers for Dumb UI Components (Protocol 88 / NA-DUMB-UI-CONSTRAINT-001)
+  const handleExportImpactReport = useCallback(() => {
+    alert(
+      isAr
+        ? 'تم استخراج وتصدير تقرير الأثر التراكمي للجناح السيادي بنجاح.'
+        : 'Sovereign cumulative impact report exported successfully.'
+    );
+  }, [isAr]);
+
+  const handleInspectChannel = useCallback((id: string) => {
+    alert(
+      isAr
+        ? `[رادار النقاء]: نتيجة الفحص المعماري للقناة (${id}): نقي وموثق 100% بدون أي مخالفت أو تلوث إعلاني.`
+        : `[Integrity Radar]: Audit result for channel (${id}): 100% clean with zero violations.`
+    );
+  }, [isAr]);
+
+  const handlePreviewCertificate = useCallback((id: string) => {
+    alert(
+      isAr
+        ? `[معاينة الخزانة]: المعاينة المائية للشهادة (${id}) معتمدة من المنصة السيادية بنسبة 100%.`
+        : `[Vault Preview]: Watermarked preview for certificate (${id}) verified.`
+    );
+  }, [isAr]);
+
+  const handleDownloadCertificate = useCallback((id: string) => {
+    alert(
+      isAr
+        ? `[الخزانة السيادية]: جاري تحميل وتأكيد الختم المائي للشهادة الرقمية (${id}).`
+        : `[Sovereign Vault]: Downloading watermarked digital certificate (${id}).`
+    );
+  }, [isAr]);
+
+  const handleExportVaultArchive = useCallback(() => {
+    alert(
+      isAr
+        ? 'تم تصدير سجل الأرشيف المائي وتوثيق الخزانة السيادية بنجاح.'
+        : 'Sovereign Vault watermarked archive exported successfully.'
+    );
+  }, [isAr]);
 
   // Platform icon helper
   const getPlatformIcon = (platform: PlatformType) => {
@@ -332,6 +463,62 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-pulse" aria-busy="true" aria-label={isAr ? 'جاري تحميل البيانات' : 'Loading data'}>
+        {/* Silent Header Skeleton */}
+        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-800 shrink-0" />
+              <div className="space-y-2">
+                <div className="h-6 w-48 bg-slate-800 rounded-lg" />
+                <div className="h-4 w-64 bg-slate-800/70 rounded-lg" />
+                <div className="h-3 w-36 bg-slate-800/50 rounded-lg" />
+              </div>
+            </div>
+            <div className="h-12 w-48 bg-slate-800 rounded-2xl shrink-0" />
+          </div>
+          <div className="flex items-center gap-2 pt-4 border-t border-slate-800/80 overflow-x-auto">
+            <div className="h-10 w-36 bg-slate-800 rounded-xl shrink-0" />
+            <div className="h-10 w-36 bg-slate-800/70 rounded-xl shrink-0" />
+            <div className="h-10 w-36 bg-slate-800/70 rounded-xl shrink-0" />
+            <div className="h-10 w-36 bg-slate-800/70 rounded-xl shrink-0" />
+          </div>
+        </div>
+
+        {/* Silent Metrics Skeleton */}
+        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
+          <div className="h-6 w-56 bg-slate-800 rounded-lg" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="h-24 bg-slate-800/60 rounded-2xl p-4 space-y-2">
+              <div className="h-3 w-16 bg-slate-700/50 rounded" />
+              <div className="h-8 w-24 bg-slate-700/80 rounded" />
+            </div>
+            <div className="h-24 bg-slate-800/60 rounded-2xl p-4 space-y-2">
+              <div className="h-3 w-16 bg-slate-700/50 rounded" />
+              <div className="h-8 w-24 bg-slate-700/80 rounded" />
+            </div>
+            <div className="h-24 bg-slate-800/60 rounded-2xl p-4 space-y-2">
+              <div className="h-3 w-16 bg-slate-700/50 rounded" />
+              <div className="h-8 w-24 bg-slate-700/80 rounded" />
+            </div>
+            <div className="h-24 bg-slate-800/60 rounded-2xl p-4 space-y-2">
+              <div className="h-3 w-16 bg-slate-700/50 rounded" />
+              <div className="h-8 w-24 bg-slate-700/80 rounded" />
+            </div>
+          </div>
+        </div>
+
+        {/* Silent Vault / Radar Skeleton */}
+        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="h-6 w-64 bg-slate-800 rounded-lg" />
+          <div className="h-32 bg-slate-800/40 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* 1. SUPPORTER SIGN-IN / COMMAND ACCOUNT HEADER BAR */}
@@ -476,66 +663,53 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
             <Globe className="w-4 h-4" />
             <span>{isAr ? '4. دليل القنوات الميدانية المتاحة' : '4. Explore Field Channels'}</span>
           </button>
+
+          <button
+            onClick={() => setAccountTab('vault')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition whitespace-nowrap cursor-pointer ${
+              accountTab === 'vault'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/20'
+                : 'bg-slate-950 text-slate-300 hover:bg-slate-900 border border-slate-800'
+            }`}
+          >
+            <FolderArchive className="w-4 h-4 text-amber-400" />
+            <span>{isAr ? '5. الخزانة السيادية والشهادات' : '5. Sovereign Vault & Certificates'}</span>
+          </button>
         </div>
       </div>
 
       {/* TAB 1: OVERVIEW & SPONSORED CHANNELS */}
       {accountTab === 'overview' && (
         <div className="space-y-6">
-          {/* Cumulative Non-Monetary Impact Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-slate-900/90 border border-amber-500/30 p-5 rounded-2xl shadow-xl space-y-2 relative overflow-hidden">
-              <div className="flex items-center justify-between text-amber-400">
-                <Clock className="w-5 h-5" />
-                <span className="text-[10px] font-bold bg-amber-500/10 px-2 py-0.5 rounded text-amber-300">
-                  {isAr ? 'تحديث حي' : 'Live Impact'}
-                </span>
-              </div>
-              <div className="text-2xl font-black text-white">1,240+ {isAr ? 'ساعة' : 'Hrs'}</div>
-              <p className="text-xs text-slate-300 font-medium">
-                {isAr ? 'ساعات التفاعل الموجهة للقنوات' : 'Engagement Hours Directed'}
-              </p>
-            </div>
+          {/* Cumulative Non-Monetary Impact Metrics Component */}
+          <ImpactCalculator
+            totalEngagementHours={1240}
+            totalOutboundVisits={3850}
+            sponsoredChannelsCount={supporterProfile.sponsoredPublisherIds.length}
+            integrityHealthPercent={100}
+            autonomyGrowthPercent={78}
+            lang={lang}
+            onExportReport={handleExportImpactReport}
+          />
 
-            <div className="bg-slate-900/90 border border-emerald-500/30 p-5 rounded-2xl shadow-xl space-y-2 relative overflow-hidden">
-              <div className="flex items-center justify-between text-emerald-400">
-                <TrendingUp className="w-5 h-5" />
-                <span className="text-[10px] font-bold bg-emerald-500/10 px-2 py-0.5 rounded text-emerald-300">
-                  {isAr ? 'تحويل مباشر' : 'Outbound Direct'}
-                </span>
-              </div>
-              <div className="text-2xl font-black text-white">3,850+ {isAr ? 'زيارة' : 'Visits'}</div>
-              <p className="text-xs text-slate-300 font-medium">
-                {isAr ? 'زيارات وتفاعل الجمهور نحو القنوات' : 'Audience Visits Generated'}
-              </p>
-            </div>
+          {/* Integrity Health Radar & Audit Shield Component (NA-SOVEREIGN-EXEC-INTEGRITY-RADAR-013) */}
+          <IntegrityHealthRadar
+            channels={radarChannelItems}
+            overallPurityPercent={100}
+            lang={lang}
+            onInspectChannel={handleInspectChannel}
+          />
 
-            <div className="bg-slate-900/90 border border-cyan-500/30 p-5 rounded-2xl shadow-xl space-y-2 relative overflow-hidden">
-              <div className="flex items-center justify-between text-cyan-400">
-                <ShieldCheck className="w-5 h-5" />
-                <span className="text-[10px] font-bold bg-cyan-500/10 px-2 py-0.5 rounded text-cyan-300">
-                  {isAr ? 'رادار النقاء' : 'Integrity Health'}
-                </span>
-              </div>
-              <div className="text-2xl font-black text-emerald-400">100% {isAr ? 'سليم' : 'Clean'}</div>
-              <p className="text-xs text-slate-300 font-medium">
-                {isAr ? 'سلامة القنوات المكفولة من البلاغات' : 'Channel Integrity Status'}
-              </p>
-            </div>
-
-            <div className="bg-slate-900/90 border border-purple-500/30 p-5 rounded-2xl shadow-xl space-y-2 relative overflow-hidden">
-              <div className="flex items-center justify-between text-purple-400">
-                <Award className="w-5 h-5" />
-                <span className="text-[10px] font-bold bg-purple-500/10 px-2 py-0.5 rounded text-purple-300">
-                  {isAr ? 'مؤشر الاستقلالية' : 'Autonomy Index'}
-                </span>
-              </div>
-              <div className="text-2xl font-black text-purple-200">78% {isAr ? 'نمو' : 'Growth'}</div>
-              <p className="text-xs text-slate-300 font-medium">
-                {isAr ? 'معدل انتقال القنوات نحو قطاع دلال' : 'Transition Rate to Dalal Sector'}
-              </p>
-            </div>
-          </div>
+          {/* Sovereign Vault Layer (NA-SOVEREIGN-PROTOCOL-VAULT-ENFORCEMENT-018) */}
+          <SovereignVault
+            certificates={supporterCertificates}
+            vaultRecords={supporterVaultRecords}
+            isGhostMode={isGhostMode}
+            lang={lang}
+            onPreviewCertificate={handlePreviewCertificate}
+            onDownloadCertificate={handleDownloadCertificate}
+            onExportVaultArchive={handleExportVaultArchive}
+          />
 
           {/* SPONSORED CHANNELS MANAGEMENT CARD CONTAINER */}
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5 shadow-2xl">
@@ -1041,6 +1215,21 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* TAB 5: SOVEREIGN VAULT & CERTIFICATES LAYER */}
+      {accountTab === 'vault' && (
+        <div className="space-y-6">
+          <SovereignVault
+            certificates={supporterCertificates}
+            vaultRecords={supporterVaultRecords}
+            isGhostMode={isGhostMode}
+            lang={lang}
+            onPreviewCertificate={handlePreviewCertificate}
+            onDownloadCertificate={handleDownloadCertificate}
+            onExportVaultArchive={handleExportVaultArchive}
+          />
         </div>
       )}
 

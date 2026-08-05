@@ -40,6 +40,7 @@ interface JasmineSectorViewProps {
   setCelebrities: React.Dispatch<React.SetStateAction<JasmineCelebrity[]>>;
   lang: Language;
   accountVerificationStatus?: 'VERIFIED' | 'PENDING' | 'REJECTED';
+  isGhostMode?: boolean;
 }
 
 export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
@@ -47,6 +48,7 @@ export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
   setCelebrities,
   lang,
   accountVerificationStatus = 'VERIFIED',
+  isGhostMode = false,
 }) => {
   const t = translations[lang];
   const isAr = lang === 'ar';
@@ -162,6 +164,18 @@ export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
     });
   }, [celebrities, searchQuery, selectedCountry, selectedCategory, selectedSupporterType]);
 
+  const handleOpenUpdateModal = useCallback((celebrity: JasmineCelebrity) => {
+    setUpdatingCelebrity(celebrity);
+    setNewVideoUrl(celebrity.videoUrl);
+    setNewStatement(celebrity.humanitarianStatement);
+    setFormError(null);
+  }, []);
+
+  const handleOpenGuidanceModal = useCallback((celebrity?: JasmineCelebrity) => {
+    if (celebrity) setSelectedCelebrityForGuidance(celebrity);
+    setShowGuidanceModal(true);
+  }, []);
+
   const memoizedCelebrityList = useMemo(() => {
     return filteredCelebrities.map((item) => (
       <JasmineMediaCard
@@ -169,28 +183,21 @@ export const JasmineSectorView: React.FC<JasmineSectorViewProps> = ({
         item={item}
         copiedId={copiedId}
         onCopyLink={handleCopyLink}
-        onOpenUpdateModal={(celebrity) => {
-          setUpdatingCelebrity(celebrity);
-          setNewVideoUrl(celebrity.videoUrl);
-          setNewStatement(celebrity.humanitarianStatement);
-          setFormError(null);
-        }}
-        onOpenGuidanceModal={(celebrity) => {
-          if (celebrity) setSelectedCelebrityForGuidance(celebrity);
-          setShowGuidanceModal(true);
-        }}
+        onOpenUpdateModal={handleOpenUpdateModal}
+        onOpenGuidanceModal={handleOpenGuidanceModal}
         archiveHistory={archivesMap[item.id] || []}
         lang={lang}
+        isGhostMode={isGhostMode}
       />
     ));
-  }, [filteredCelebrities, copiedId, handleCopyLink, archivesMap, lang]);
+  }, [filteredCelebrities, copiedId, handleCopyLink, handleOpenUpdateModal, handleOpenGuidanceModal, archivesMap, lang, isGhostMode]);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedCountry('ALL');
     setSelectedCategory('ALL');
     setSelectedSupporterType('ALL');
-  };
+  }, []);
 
   const hasActiveFilters = searchQuery !== '' || selectedCountry !== 'ALL' || selectedCategory !== 'ALL' || selectedSupporterType !== 'ALL';
 

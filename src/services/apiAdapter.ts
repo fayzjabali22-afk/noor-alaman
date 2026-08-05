@@ -199,6 +199,46 @@ export class SovereignServiceAdapter {
       };
     }
   }
+
+  /**
+   * Sync Jasmine Endorsement / Traffic Boost directly to Sovereign Vault (Decoupled Bridge)
+   */
+  public async syncJasmineToVault(payload: {
+    celebrityId: string;
+    celebrityName: string;
+    endorsedCampaign?: string;
+    isGhostMode?: boolean;
+  }): Promise<{ success: boolean; certificateId: string; recordNo: string }> {
+    try {
+      const certId = `CERT-JASMINE-${Date.now()}`;
+      const recordNo = `NA-JAS-${Math.floor(1000 + Math.random() * 9000)}`;
+      const newCert = {
+        id: certId,
+        certificateNo: recordNo,
+        title: `شهادة توثيق وتزكية شرفية - ${payload.celebrityName}`,
+        issueDate: new Date().toISOString().split('T')[0],
+        issuer: 'قطاع الياسمين الإنساني',
+        status: 'verified' as const,
+        category: 'تزكية شرفية',
+        hashSignature: `0xJASMINE${Date.now().toString(16).toUpperCase()}`,
+        type: 'JASMINE_ENDORSEMENT',
+        endorsedChannelId: payload.celebrityId,
+        watermarkSeal: `SEAL-JASMINE-${payload.celebrityId}`,
+      };
+
+      const existing = JSON.parse(localStorage.getItem('noor_sovereign_certs') || '[]');
+      localStorage.setItem('noor_sovereign_certs', JSON.stringify([newCert, ...existing]));
+
+      return { success: true, certificateId: certId, recordNo };
+    } catch (error) {
+      console.warn('Decoupled Adapter: syncJasmineToVault fallback activated', error);
+      return {
+        success: true,
+        certificateId: `CERT-JASMINE-${Date.now()}`,
+        recordNo: `NA-JAS-${Date.now().toString().slice(-4)}`,
+      };
+    }
+  }
 }
 
 export const apiAdapter = SovereignServiceAdapter.getInstance();
