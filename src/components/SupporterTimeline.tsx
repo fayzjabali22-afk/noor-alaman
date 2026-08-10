@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { AccordionEmptyState } from './layout/AccordionEmptyState';
 import {
   SupporterAction,
   Publisher,
@@ -28,6 +29,8 @@ import {
   ArrowUpDown,
   Building2,
   Share2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export interface SupporterTimelineProps {
@@ -50,6 +53,9 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
   className = '',
 }) => {
   const isAr = lang === 'ar';
+
+  // Accordion Expand/Collapse state
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
 
   // Component Filter & Search local state (pure presentation logic)
   const [searchQuery, setSearchQuery] = useState('');
@@ -181,12 +187,15 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
   };
 
   return (
-    <div className={`bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-6 shadow-xl relative overflow-hidden ${className}`}>
+    <div className={`w-full bg-slate-900/90 border border-slate-800/80 rounded-2xl md:rounded-3xl p-4 md:p-6 space-y-4 shadow-xl relative overflow-hidden transition-all duration-300 ${className}`}>
       {/* Background Subtle Accent Glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Header Banner & Sovereign Command Badge */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      {/* Accordion Header Banner & Trigger Button */}
+      <div
+        onClick={() => setIsAccordionOpen((prev) => !prev)}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1 cursor-pointer select-none group w-full min-h-[56px]"
+      >
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20">
@@ -198,7 +207,7 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
             </span>
           </div>
 
-          <h3 className="text-base md:text-lg font-bold text-white flex items-center gap-2 pt-1">
+          <h3 className="text-base md:text-lg font-bold text-white flex items-center gap-2 pt-1 group-hover:text-emerald-300 transition-colors">
             <span>{isAr ? 'الجدول الزمني التفاعلي لعمليات التحويل والدعم' : 'Interactive Support Outbound Timeline'}</span>
           </h3>
           <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
@@ -208,34 +217,59 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
           </p>
         </div>
 
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 shrink-0 self-start md:self-auto">
+        {/* Accordion Toggle Action & View Mode */}
+        <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
+          {/* View Mode Toggle (Only visible when accordion is open) */}
+          {isAccordionOpen && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800"
+            >
+              <button
+                type="button"
+                onClick={() => setViewMode('TIMELINE')}
+                className={`px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer min-h-[44px] touch-manipulation active:scale-95 ${
+                  viewMode === 'TIMELINE'
+                    ? 'bg-emerald-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{isAr ? 'خط زمني' : 'Timeline'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('COMPACT')}
+                className={`px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer min-h-[44px] touch-manipulation active:scale-95 ${
+                  viewMode === 'COMPACT'
+                    ? 'bg-emerald-500 text-slate-950 shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{isAr ? 'شبكي مدمج' : 'Grid'}</span>
+              </button>
+            </div>
+          )}
+
+          {/* Unified Accordion Trigger Chevron Button */}
           <button
             type="button"
-            onClick={() => setViewMode('TIMELINE')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              viewMode === 'TIMELINE'
-                ? 'bg-emerald-500 text-slate-950 shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAccordionOpen((prev) => !prev);
+            }}
+            className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer touch-manipulation active:scale-95 shrink-0"
+            title={isAccordionOpen ? (isAr ? 'طَي المنسدلة' : 'Collapse') : (isAr ? 'توسيع المنسدلة' : 'Expand')}
           >
-            <Clock className="w-3.5 h-3.5" />
-            <span>{isAr ? 'خط زمني' : 'Timeline'}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('COMPACT')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              viewMode === 'COMPACT'
-                ? 'bg-emerald-500 text-slate-950 shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>{isAr ? 'شبكي مدمج' : 'Grid'}</span>
+            <ChevronDown className={`w-5 h-5 text-emerald-400 transition-transform duration-300 ${isAccordionOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
       </div>
+
+      {/* Accordion Body Content */}
+      {isAccordionOpen && (
+        <div className="space-y-6 pt-3 border-t border-slate-800/60 animate-fade-in transition-all duration-300">
 
       {/* Statistics Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -286,13 +320,13 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
       <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="absolute right-3 top-2.5 w-3.5 h-3.5 text-slate-500" />
+          <Search className="absolute right-3 top-3.5 w-3.5 h-3.5 text-slate-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={isAr ? 'بحث باسم الناشر أو المنصة أو المعرّف...' : 'Search channel name, platform...'}
-            className="w-full bg-slate-900 border border-slate-800 rounded-lg pr-9 pl-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            className="w-full bg-slate-900 border border-slate-800 rounded-lg pr-9 pl-3 py-2 text-base md:text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition min-h-[44px] touch-manipulation"
           />
         </div>
 
@@ -302,7 +336,7 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
           <select
             value={selectedPlatform}
             onChange={(e) => setSelectedPlatform(e.target.value as any)}
-            className="bg-slate-900 text-slate-300 border border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 cursor-pointer"
+            className="bg-slate-900 text-slate-300 border border-slate-800 rounded-lg px-3 py-2 text-base md:text-xs focus:outline-none focus:border-emerald-500 cursor-pointer min-h-[44px] touch-manipulation"
           >
             <option value="ALL">{isAr ? 'جميع المنصات' : 'All Platforms'}</option>
             <option value="YouTube">YouTube</option>
@@ -317,33 +351,48 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
           <button
             type="button"
             onClick={() => setSortOrder((prev) => (prev === 'NEWEST' ? 'OLDEST' : 'NEWEST'))}
-            className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg flex items-center gap-1.5 transition cursor-pointer shrink-0"
+            className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg flex items-center gap-2 transition active:scale-95 cursor-pointer shrink-0 min-h-[44px] touch-manipulation"
             title={isAr ? 'تغيير ترتيب العرض الزمني' : 'Toggle Date Order'}
           >
             <ArrowUpDown className="w-3.5 h-3.5 text-emerald-400" />
             <span>{sortOrder === 'NEWEST' ? (isAr ? 'الأحدث أولاً' : 'Newest First') : (isAr ? 'الأقدم أولاً' : 'Oldest First')}</span>
+            <span className="px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-500/40 text-[9px] text-emerald-300 font-mono font-bold">
+              {sortOrder === 'NEWEST' ? '↓' : '↑'}
+            </span>
           </button>
         </div>
       </div>
 
       {/* Main Content Area: TIMELINE VIEW or COMPACT GRID VIEW */}
       {processedActions.length === 0 ? (
-        /* Empty State */
-        <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-8 text-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500">
-            <History className="w-6 h-6" />
-          </div>
-          <h4 className="text-sm font-bold text-slate-300">
-            {isAr ? 'لا توجد تفاعلات مطابقة للبحث أو التصفية' : 'No matching interactions found'}
-          </h4>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            {supporterActions.length === 0
-              ? (isAr
-                  ? 'لم تقم بتسجيل أي زيارات تحويلية حتى الآن. اضغط على "انتقال للقناة الأصلية" في أي بطاقة ناشر لبدء سجلك.'
-                  : 'You have not performed any outbound redirections yet. Click "Go to Official Channel" on any publisher card to begin.')
-              : (isAr ? 'جرّب تعديل مصطلحات البحث أو إعادة تعيين الفلاتر.' : 'Try adjusting your search terms or filters.')}
-          </p>
-        </div>
+        <AccordionEmptyState
+          titleAr="لا توجد سجلات تفاعل مطابقة"
+          titleEn="No Matching Interaction Logs"
+          descriptionAr={
+            supporterActions.length === 0
+              ? 'لم تقم بتسجيل أي زيارات تحويلية حتى الآن. اضغط على "انتقال للقناة الأصلية" في أي بطاقة ناشر لبدء سجلك التوثيقي.'
+              : 'لم نجد أي تفاعلات تطابق الخيارات المحددة. يمكنك إعادة ضبط الفلاتر لاستعادة كافة التفاعلات.'
+          }
+          descriptionEn={
+            supporterActions.length === 0
+              ? 'You have not performed any outbound redirections yet. Click "Go to Official Channel" on any publisher card to begin.'
+              : 'No interactions found matching selected criteria. Reset filters to view all entries.'
+          }
+          icon={History}
+          actionLabelAr={(searchQuery || selectedPlatform !== 'ALL') ? 'إعادة ضبط فلاتر البحث' : undefined}
+          actionLabelEn={(searchQuery || selectedPlatform !== 'ALL') ? 'Reset Search Filters' : undefined}
+          onAction={
+            (searchQuery || selectedPlatform !== 'ALL')
+              ? () => {
+                  setSearchQuery('');
+                  setSelectedPlatform('ALL');
+                }
+              : undefined
+          }
+          badgeTextAr="سجل التوجيه"
+          badgeTextEn="Redirection History"
+          lang={isAr ? 'ar' : 'en'}
+        />
       ) : viewMode === 'TIMELINE' ? (
         /* Vertical Chronological Timeline View */
         <div className="space-y-8 relative before:absolute before:top-3 before:bottom-3 before:right-6 md:before:right-8 before:w-0.5 before:bg-slate-800">
@@ -448,7 +497,7 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
                         <button
                           type="button"
                           onClick={() => onRevisitChannel && onRevisitChannel(act)}
-                          className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-emerald-600 hover:text-slate-950 text-emerald-300 font-bold text-xs border border-emerald-500/30 transition flex items-center gap-1.5 cursor-pointer"
+                          className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-emerald-600 hover:text-slate-950 text-emerald-300 font-bold text-xs border border-emerald-500/30 transition-all duration-200 active:scale-95 flex items-center gap-1.5 cursor-pointer min-h-[44px] touch-manipulation shadow-sm"
                         >
                           <span>{isAr ? 'إعادة التوجيه للقناة الرسمية' : 'Revisit Official Channel'}</span>
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -504,14 +553,16 @@ export const SupporterTimeline: React.FC<SupporterTimelineProps> = ({
                 <button
                   type="button"
                   onClick={() => onRevisitChannel && onRevisitChannel(act)}
-                  className="w-full py-2 rounded-lg bg-slate-900 hover:bg-emerald-600 text-emerald-300 hover:text-slate-950 font-bold text-xs border border-emerald-500/30 transition flex items-center justify-center gap-1 cursor-pointer"
+                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-emerald-300 hover:text-slate-950 font-bold text-xs border border-emerald-500/30 transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] touch-manipulation shadow-sm"
                 >
                   <span>{isAr ? 'زيارة جديدة' : 'Revisit'}</span>
-                  <ExternalLink className="w-3 h-3" />
+                  <ExternalLink className="w-3.5 h-3.5" />
                 </button>
               </div>
             );
           })}
+        </div>
+      )}
         </div>
       )}
     </div>

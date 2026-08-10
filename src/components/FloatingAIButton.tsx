@@ -25,7 +25,13 @@ export const FloatingAIButton: React.FC<FloatingAIButtonProps> = ({
   const t = translations[lang];
 
   return (
-    <div className="fixed bottom-6 ltr:right-6 rtl:left-6 z-[99999] flex items-center gap-2 group" style={{ zIndex: 99999 }}>
+    <div
+      className="fixed bottom-20 sm:bottom-22 md:bottom-24 ltr:right-4 sm:ltr:right-6 rtl:left-4 sm:rtl:left-6 z-[99999] flex items-center gap-2 group"
+      style={{
+        bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
+        zIndex: 99999,
+      }}
+    >
       {/* Tooltip Label */}
       <span className="hidden sm:inline-block px-3 py-1.5 rounded-xl bg-slate-900/95 text-emerald-300 text-xs font-bold border border-emerald-800/80 shadow-2xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
         {t.aiAssistant}

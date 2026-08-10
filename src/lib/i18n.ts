@@ -1,6 +1,6 @@
 import { Language, CategoryType, PlatformType, LifecycleStage, VerificationTier } from '../types';
 
-export const translations = {
+const rawTranslations = {
   ar: {
     // Navigation & Header
     platformName: 'منصة نور الأماني',
@@ -11,8 +11,8 @@ export const translations = {
     jasmineSector: 'قطاع الياسمين',
     dalalSector: 'قطاع دلال',
     raedaSector: 'قطاع رائدة',
-    publisherSystem: 'بوابة الناشرين',
-    supporterSystem: 'بوابة الداعمين',
+    publisherSystem: 'بوابة نداء متابع ودعم المحتوى',
+    supporterSystem: 'بوابة التبني',
     adminPortal: 'لوحة الإدارة والحوكمة',
     analyticsSystem: 'مؤشرات الأداء الأثر',
     aiAssistant: 'المساعد الذكي',
@@ -788,12 +788,23 @@ export const translations = {
   }
 };
 
+// Safe fallback proxy for all 15 global languages
+export const translations = new Proxy(rawTranslations, {
+  get(target: any, prop: string) {
+    if (prop in target) {
+      return target[prop];
+    }
+    // Fallback to English if available, or Arabic
+    return target.en || target.ar;
+  },
+});
+
 export function isRTL(lang: Language): boolean {
   return lang === 'ar' || lang === 'fa' || lang === 'ur';
 }
 
 export function getCategoryLabel(category: CategoryType, lang: Language): string {
-  const map: Record<CategoryType, keyof typeof translations.ar> = {
+  const map: Record<CategoryType, keyof typeof rawTranslations.ar> = {
     FIELD_REPORTING: 'catFieldReporting',
     RELIEF_AND_MEDICAL: 'catReliefMedical',
     SHELTER_AND_FOOD: 'catShelterFood',
@@ -805,11 +816,12 @@ export function getCategoryLabel(category: CategoryType, lang: Language): string
     ECO_INITIATIVE: 'catEcoInitiative',
     INNOVATION_HUB: 'catInnovationHub',
   };
-  return translations[lang][map[category]];
+  const langDict = translations[lang] || translations.ar;
+  return langDict[map[category]] || category;
 }
 
 export function getLifecycleLabel(stage: LifecycleStage, lang: Language): string {
-  const map: Record<LifecycleStage, keyof typeof translations.ar> = {
+  const map: Record<LifecycleStage, keyof typeof rawTranslations.ar> = {
     REGISTRATION: 'stage1',
     VERIFICATION_PENDING: 'stage2',
     ACTIVE_SUPPORT: 'stage3',
@@ -819,5 +831,6 @@ export function getLifecycleLabel(stage: LifecycleStage, lang: Language): string
     RAEDA_SUCCESS: 'stage7',
     GRADUATED: 'stage8',
   };
-  return translations[lang][map[stage]];
+  const langDict = translations[lang] || translations.ar;
+  return langDict[map[stage]] || stage;
 }

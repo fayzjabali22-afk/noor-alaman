@@ -1,4 +1,15 @@
-export type Language = 'ar' | 'en' | 'fa' | 'ur';
+export interface SovereignNotification {
+  id: string;
+  title: string;
+  body: string;
+  timestamp: string;
+  isRead: boolean;
+  type?: 'INFO' | 'SUCCESS' | 'WARNING' | 'SYSTEM';
+  linkUrl?: string;
+}
+
+export type Language =
+  | 'ar' | 'en' | 'fa' | 'ur' | 'fr' | 'es' | 'de' | 'tr' | 'id' | 'ru' | 'ja' | 'zh' | 'pt' | 'hi' | 'sw';
 
 export type UserRole = 'SUPPORTER' | 'PUBLISHER' | 'CELEBRITY' | 'ADMIN' | 'AUDITOR';
 
@@ -12,7 +23,21 @@ export type LifecycleStage =
   | 'RAEDA_SUCCESS'       // 7. الانتقال إلى قطاع رائدة
   | 'GRADUATED';          // 8. الخروج المكتمل من قوائم الدعم
 
-export type PlatformType = 'YouTube' | 'Telegram' | 'X' | 'Facebook' | 'Instagram' | 'TikTok' | 'Website' | 'WhatsApp';
+export type PlatformType =
+  | 'YouTube'
+  | 'TikTok'
+  | 'Facebook'
+  | 'Instagram'
+  | 'Telegram'
+  | 'Rumble'
+  | 'Vimeo'
+  | 'Twitch'
+  | 'Kick'
+  | 'Dailymotion'
+  | 'Bilibili'
+  | 'Website'
+  | 'WhatsApp'
+  | 'X';
 
 export type CategoryType =
   | 'FIELD_REPORTING'
@@ -64,6 +89,22 @@ export interface Publisher {
   fairScore?: number;
   subscribersCount?: string;
   fairScoreHistory?: FairScoreHistoryRecord[];
+  monetizationProgressPercent?: number;  // نسبة الاقتراب من تحقيق شروط ربح المنصة (0 - 100)
+  monetizationNeedsNote?: string;        // الاحتياج المتبقي (مثال: ينقصه 120 مشترك و 200 ساعة مشاهدة)
+  isNearMonetization?: boolean;          // علامة الأقرب لتحقيق شروط الربح
+}
+
+export interface RescuedStory {
+  id: string;
+  publisherName: string;
+  publisherAvatar: string;
+  location: string;
+  storyTitle: string;
+  storyContent: string;
+  date: string;
+  impactMetric: string;
+  platformUrl: string;
+  platform: PlatformType;
 }
 
 export interface FairEngineWeights {
@@ -166,6 +207,43 @@ export interface AuditLog {
   category?: AuditActionCategory;
   targetId?: string;
   targetType?: 'PUBLISHER' | 'VERIFICATION_QUEUE' | 'FAIR_ENGINE' | 'SECURITY' | 'SECTOR' | 'REPORT';
+}
+
+export type RegionType =
+  | 'MIDDLE_EAST'        // الشرق الأوسط
+  | 'NORTH_AFRICA'       // شمال إفريقيا
+  | 'SOUTH_EAST_ASIA'    // جنوب شرق آسيا
+  | 'EUROPE'             // أوروبا
+  | 'NORTH_AMERICA'      // أمريكا الشمالية
+  | 'GLOBAL_OPEN';       // إقليم إنساني مفتوح
+
+export type TargetTerritoryType =
+  | 'GAZA_STRIP'         // قطاع غزة
+  | 'AL_QUDS'            // القدس الشريف
+  | 'WEST_BANK'          // الضفة الغربية
+  | 'SUDAN'              // السودان
+  | 'YEMEN'              // اليمن
+  | 'OPEN_HUMANITARIAN'; // نطاق ميداني مفتوح
+
+export interface CreatorProfileData {
+  publicChannelName: string;
+  platform: PlatformType;
+  contentCategory: string; // 'محتوى إنساني' | 'صحفي ميداني' | 'تفاعلي' | 'ثقافي' | 'توعوي'
+  introVideoUrl: string;
+  subscribersOrFollowersCount?: number;
+}
+
+export interface SupporterProfile {
+  id: string;
+  fullName: string;
+  email: string;
+  isLoggedIn: boolean;
+  isVerified: boolean;
+  userType: 'SPONSOR' | 'CREATOR_CELEBRITY' | 'GUEST_SUPPORTER';
+  mainRegion: RegionType | string;
+  targetTerritory: TargetTerritoryType | string;
+  creatorData?: CreatorProfileData;
+  joinedAt: string;
 }
 
 export interface SupporterAction {

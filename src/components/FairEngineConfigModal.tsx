@@ -8,7 +8,9 @@ interface FairEngineConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
   weights: FairEngineWeights;
-  setWeights: React.Dispatch<React.SetStateAction<FairEngineWeights>>;
+  setWeights?: React.Dispatch<React.SetStateAction<FairEngineWeights>>;
+  onWeightChange?: (key: keyof FairEngineWeights, val: number) => void;
+  onResetWeights?: () => void;
   lang: Language;
 }
 
@@ -17,20 +19,30 @@ export const FairEngineConfigModal: React.FC<FairEngineConfigModalProps> = ({
   onClose,
   weights,
   setWeights,
+  onWeightChange,
+  onResetWeights,
   lang,
 }) => {
   const t = translations[lang];
 
   const handleChange = useCallback((key: keyof FairEngineWeights, val: number) => {
-    setWeights((prev) => ({
-      ...prev,
-      [key]: val,
-    }));
-  }, [setWeights]);
+    if (onWeightChange) {
+      onWeightChange(key, val);
+    } else if (setWeights) {
+      setWeights((prev) => ({
+        ...prev,
+        [key]: val,
+      }));
+    }
+  }, [onWeightChange, setWeights]);
 
   const handleReset = useCallback(() => {
-    setWeights(defaultFairEngineWeights);
-  }, [setWeights]);
+    if (onResetWeights) {
+      onResetWeights();
+    } else if (setWeights) {
+      setWeights(defaultFairEngineWeights);
+    }
+  }, [onResetWeights, setWeights]);
 
   if (!isOpen) return null;
 

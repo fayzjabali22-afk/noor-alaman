@@ -2,6 +2,10 @@ import React, { memo } from 'react';
 import { motion } from 'motion/react';
 import { Language, Publisher } from '../types';
 import { translations } from '../lib/i18n';
+import { initialRescuedStories } from '../data/initialData';
+import { SupportStopwatchWidget } from './SupportStopwatchWidget';
+import { NearMonetizationChannelsWidget } from './NearMonetizationChannelsWidget';
+import { RescuedLivelihoodsSection } from './RescuedLivelihoodsSection';
 import {
   ShieldCheck,
   Heart,
@@ -20,15 +24,8 @@ import {
   Radio,
   Flame,
   Feather,
+  Clock,
 } from 'lucide-react';
-
-/*
-  =============================================================================
-  [الأمر السيادي رقم CMD-2026-0727-HOME-REMOVE-SECTION-31]
-  - حذف قسم الفلاتر الديناميكية وأداة البحث من الشاشة الرئيسية لتخفيف الحمولة المرجعية.
-  - الامتثال لبروتوكول 88 (Zero-Waste & Resource Shield) ونقاء الواجهات العرضية.
-  =============================================================================
-*/
 
 interface HomeScreenViewProps {
   lang: Language;
@@ -40,11 +37,9 @@ interface HomeScreenViewProps {
   spotlightPublisher?: Publisher | null;
   publishers?: Publisher[];
   onOpenBlogModal?: () => void;
+  onOpenPublisherLink?: (pub: Publisher) => void;
 }
 
-// -----------------------------------------------------------------------------
-// [HomeScreenViewComponent] - Primary View Component
-// -----------------------------------------------------------------------------
 export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
   lang,
   onNavigateTab,
@@ -53,7 +48,9 @@ export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
   dalalCount,
   raedaCount,
   spotlightPublisher = null,
+  publishers = [],
   onOpenBlogModal,
+  onOpenPublisherLink,
 }) => {
   const t = translations[lang];
   const isAr = lang === 'ar';
@@ -252,7 +249,7 @@ export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
         </div>
       </motion.section>
 
-      {/* Dedicated Container for Blogs & Theoretical Papers (حاوية المدونات والأوراق الفكرية) */}
+      {/* Dedicated Container for Blogs & Theoretical Papers */}
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -401,6 +398,33 @@ export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
           </div>
         </div>
       </motion.section>
+
+      {/* 1. Support Stopwatch / Time Donation Widget */}
+      <SupportStopwatchWidget
+        lang={lang}
+        onOpenChannel={() => onNavigateTab('supporter')}
+        supportedChannelsCount={totalVisitsCount}
+      />
+
+      {/* 2. Near Monetization Channels (الأقرب لتحقيق شروط الربح) */}
+      <NearMonetizationChannelsWidget
+        publishers={publishers}
+        lang={lang}
+        onOpenPublisherLink={(pub) => {
+          if (onOpenPublisherLink) {
+            onOpenPublisherLink(pub);
+          } else {
+            onNavigateTab('supporter');
+          }
+        }}
+      />
+
+      {/* 3. Rescued Livelihoods Stories (أنقذت رزقي) */}
+      <RescuedLivelihoodsSection
+        lang={lang}
+        stories={initialRescuedStories}
+        onOpenStoryUrl={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
+      />
 
 
 

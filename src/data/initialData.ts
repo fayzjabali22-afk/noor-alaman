@@ -6,7 +6,35 @@ import {
   VerificationQueueItem,
   ReportItem,
   AuditLog,
+  RescuedStory,
 } from '../types';
+
+export const initialRescuedStories: RescuedStory[] = [
+  {
+    id: 'story-001',
+    publisherName: 'الصحفي محمد نصر - شمال غزة',
+    publisherAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+    location: 'جباليا - شمال غزة',
+    storyTitle: 'كيف فتحت لي مشاهدات المتابعين باب رزق كفاني عن السؤال',
+    storyContent: 'كنت قد فقدت كاميرتي ومعداتي الصحفية ولم يكن لدي أي دخل لتأمين طعام أطفالي. بفضل توجيه زوار منصة نور الأماني نحو قناتي على يوتيوب، ارتفع عدد المشتركين والساعات المؤهلة للأرباح خلال 3 أسابيع، وأصبحت أستلم عوادي الشهرية المستحقة من الشركات مباشرة دون أي تبرع من جيوب الناس.',
+    date: '2026-06-15',
+    impactMetric: '12,400+ مشاهدة صادقة | تأهيل أرباح يوتيوب',
+    platformUrl: 'https://youtube.com/@gaza_press_official',
+    platform: 'YouTube',
+  },
+  {
+    id: 'story-002',
+    publisherName: 'أم إبراهيم - مطبخ الصمود التكافلي',
+    publisherAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200',
+    location: 'دير البلح - غزة',
+    storyTitle: 'تحولت فيديوهاتي البسيطة عن إعداد الوجبات إلى مصدر دخل لـ 4 أسر',
+    storyContent: 'أقوم بإعداد الطعام للنازحين وتوثيق الوصفات التراثية على تيك توك ورامبل. عندما وجهت منصة نور الأماني المتابعين للاشتراك والمشاهدة، ارتفعت المشاهدات وفتحت لي شركات الإعلانات باب رزق مستدام مكنني من الاستمرار وتوظيف 3 جارات معي.',
+    date: '2026-07-02',
+    impactMetric: '8,500+ ساعة مشاهدة | دخل شهري ثابت من المنصة',
+    platformUrl: 'https://tiktok.com/@kitchen_gaza_hope',
+    platform: 'TikTok',
+  },
+];
 
 export const initialPublishers: Publisher[] = [
   {
@@ -29,6 +57,9 @@ export const initialPublishers: Publisher[] = [
     contactEmail: 'north.gaza.relief@gmail.com',
     isGazaPilot: true,
     subscribersCount: '128K مشترك',
+    monetizationProgressPercent: 92,
+    monetizationNeedsNote: 'ينقصه 80 مشترك فقط لفتح مكافآت الدخل المباشر',
+    isNearMonetization: true,
     fairScoreHistory: [
       {
         id: 'fsh-101',
@@ -66,6 +97,9 @@ export const initialPublishers: Publisher[] = [
     contactEmail: 'khanyounis.med@gmail.com',
     isGazaPilot: true,
     subscribersCount: '84K متابع',
+    monetizationProgressPercent: 88,
+    monetizationNeedsNote: 'ينقصه 150 ساعة مشاهدة لتأهيل الأرباح المباشرة',
+    isNearMonetization: true,
   },
   {
     id: 'pub-003',

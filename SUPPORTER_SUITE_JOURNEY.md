@@ -1,9 +1,28 @@
 # SUPPORTER SUITE JOURNEY ARCHITECTURE & GOVERNANCE
 ## التوثيق المعماري والدليل التشغيلي لجناح الكفالة السيادي وخريطة رحلة الكفيل
 
-**رقم الأمر المعماري:** `[NA-SOVEREIGN-EXEC-SUPPORTER-SUITE-JOU-012]` | `[NA-SOVEREIGN-EXEC-INTEGRITY-RADAR-013]` | `[NA-SOVEREIGN-EXEC-SUPPORTER-VAULT-015]` | `[NA-SOVEREIGN-PROTOCOL-VAULT-ENFORCEMENT-018]` | `[SOVEREIGN-PROTOCOL-110]` | `[NA-SOVEREIGN-SKELETON-INDICATOR-110.3.0]` | `[NA-HARMONIZATION-BRIDGE-110.4.0]` | `[بروتوكول رقم 88 / 12 / 99]`
-**الحالة السيادية:** معتمد، نافذ، ومختوم بنسبة 100% 🟢
+**رقم الأمر المعماري:** `[NA-SOVEREIGN-ORDER-028-PORTAL-REFACTOR]` | `[NA-SOVEREIGN-ORDER-027-MASTER-SILENT-HARMONY]` | `[NA-SOVEREIGN-EXEC-SUPPORTER-SUITE-JOU-012]` | `[NA-SOVEREIGN-EXEC-INTEGRITY-RADAR-013]` | `[NA-SOVEREIGN-EXEC-SUPPORTER-VAULT-015]` | `[NA-SOVEREIGN-PROTOCOL-VAULT-ENFORCEMENT-018]` | `[SOVEREIGN-PROTOCOL-110]` | `[NA-SOVEREIGN-SKELETON-INDICATOR-110.3.0]` | `[NA-HARMONIZATION-BRIDGE-110.4.0]` | `[بروتوكول رقم 88 / 12 / 99]`
+**الحالة السيادية:** معتمد، نافذ، ومختوم بالأرشيف السيادي بنسبة 100% 🟢
 **التاريخ:** 2026-08-04
+
+---
+
+### 📜 سجل الاعتماد الموحد للأمر السيادي رقم [NA-SOVEREIGN-ORDER-028-PORTAL-REFACTOR]:
+- **تجزئة مكونات بوابة الداعم (Modular Component Extraction):** إنشاء المجلد المستقل `src/components/SupporterPortal/` وتقسيم الملف المتضخم إلى مكونات متخصصة: `supporterMockData.ts` (البيانات الإرشادية)، `SupporterSkeleton.tsx` (واجهة التحميل بدون انزياح CLS)، `SupporterHeader.tsx` (شريط الحساب ووضع الشبح)، `SupporterTabs.tsx` (تبويبات التنقل المحسّنة للهواتف)، و `SponsoredChannelsGrid.tsx` (شبكة القنوات المكفولة).
+- **حماية التهيئة من أخطاء Next.js SSR:** تأمين قراءة `localStorage` لوضع الشبح بشرط `typeof window !== 'undefined'` لمنع أخطاء Hydration mismatch في البيئات المتطابقة.
+- **تحسينات تجربة المستخدم للهواتف PWA:** ضبط جميع عناصر التحكم القابلة للنقر لتلبية الحد الأدنى لأبعاد الضغط (`44px min touch target`) مع إخفاء أشرطة التمرير الأفقية المزعجة `[&::-webkit-scrollbar]:hidden`.
+- **تفكيك وتهذيب بوابة الداعم (Decoupled Filtering Logic):** استخراج منطق البحث والفرز والفلترة التراكمي إلى الخطاف المخصص `useSupporterFilters.ts` للحفاظ على المكونات خفيفة ومخصصة للعرض فقط.
+- **حماية الذاكرة ومنع الهدر (`Protocol 88`):** تغليف حسابات الفلترة ودرجات محرك العدالة بـ `useMemo` واستدعاءات الاستجابة بـ `useCallback` لمنع أي رندر غير مستهدف بذاكرة الـ PWA.
+- **تجريد نافذة البلاغات (Dumb Report Modal):** التأكيد على أن `ReportModal` مجرد واجهة غبية تدير الإرسال عبر محول الخدمات `apiAdapter` بدون تعديل مباشر للحالة المحلية.
+- **صمام أمان الخزانة السيادية (Vault Duplication Safeguard):** تزويد الدالة `syncJasmineToVault` داخل `apiAdapter.ts` بشرط يمنع تكرار السجلات عند تطابق الختم المائي `watermarkSeal` أو المعرف `endorsedChannelId`.
+
+---
+
+### 📜 سجل الاعتماد الموحد للأمر السيادي المدمج رقم [NA-SOVEREIGN-ORDER-027-MASTER-SILENT-HARMONY]:
+- **الاستقرار البصري ومحو الانزياح التخطيطي (Zero CLS Skeleton Loading):** تم اعتماد وتشغيل هيكل التحميل الصامت (`animate-pulse`) بأبعاد نسبية متطابقة لحماية الأداء ومنع اهتزاز الشاشة في تطبيقات الـ PWA على مختلف الأجهزة الذكية.
+- **انتشار التخفي السيادي الصامت (Ghost Mode Propagation):** ربط حالة `isGhostMode` المخزنة مركزيًا عبر `App.tsx` وتمريرها بتدفق أحادي الاتجاه خالي من الأزرار الاستعراضية إلى `SupporterPortalView` و `JasmineSectorView` و `JasmineMediaCard` مع الحفاظ على النقاء البصري.
+- **جسر المزامنة المعزول لخزانة الداعم (`syncJasmineToVault` Bridge):** بناء الدالة الصامتة داخل `apiAdapter.ts` و `jasmineService.ts` لتجسير تزكيات قطاع الياسمين مباشرة إلى الخزانة السيادية وتوليد وتوثيق الأختام المائية وشهادات التزكية `JASMINE_ENDORSEMENT`.
+- **الالتزام المطلق بقيد الواجهات الصامتة (`NA-DUMB-UI-CONSTRAINT-001 v1.0`):** خلو كافة مكونات الواجهة من المنطق الثقيل أو أزرار التحكم غير المطلوبة، مع حماية العمليات بـ `try/catch` ومعالجة صامتة تضمن استقرار النظام.
 
 ---
 

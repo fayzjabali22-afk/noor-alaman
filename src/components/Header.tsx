@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { ContextualMobileNav } from './layout/ContextualMobileNav';
+import { NotificationBell } from './NotificationBell';
 import {
   ShieldCheck,
   Sparkles,
@@ -104,6 +106,8 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Mobile Control Triggers */}
               <div className="flex items-center gap-1.5 md:hidden shrink-0">
+                <NotificationBell lang={lang} />
+
                 <button
                   onClick={() => onToggleReadingMode(!isReadingMode)}
                   className={`p-2 rounded-xl text-xs font-bold border transition flex items-center gap-1 ${
@@ -128,6 +132,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Left: Sovereign Control Console (قمرة القيادة والتفضيلات - Desktop) */}
             <div className="hidden md:flex flex-wrap items-center justify-end gap-2.5 w-full md:w-auto">
+              <NotificationBell lang={lang} />
+
               <button
                 onClick={() => onToggleReadingMode(!isReadingMode)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 shadow-sm ${
@@ -155,6 +161,17 @@ export const Header: React.FC<HeaderProps> = ({
                   <option value="en" className="bg-slate-900 text-white">English (EN)</option>
                   <option value="fa" className="bg-slate-900 text-white">فارسی (FA)</option>
                   <option value="ur" className="bg-slate-900 text-white">اردو (UR)</option>
+                  <option value="fr" className="bg-slate-900 text-white">Français (FR)</option>
+                  <option value="es" className="bg-slate-900 text-white">Español (ES)</option>
+                  <option value="de" className="bg-slate-900 text-white">Deutsch (DE)</option>
+                  <option value="tr" className="bg-slate-900 text-white">Türkçe (TR)</option>
+                  <option value="id" className="bg-slate-900 text-white">Bahasa Indonesia (ID)</option>
+                  <option value="ru" className="bg-slate-900 text-white">Русский (RU)</option>
+                  <option value="zh" className="bg-slate-900 text-white">中文 (ZH)</option>
+                  <option value="ja" className="bg-slate-900 text-white">日本語 (JA)</option>
+                  <option value="pt" className="bg-slate-900 text-white">Português (PT)</option>
+                  <option value="hi" className="bg-slate-900 text-white">हिन्दी (HI)</option>
+                  <option value="sw" className="bg-slate-900 text-white">Kiswahili (SW)</option>
                 </select>
               </div>
 
@@ -246,7 +263,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <FileText className="w-3.5 h-3.5 text-purple-400" />
-                <span>{isAr ? 'بوابة الناشر' : 'Publisher'}</span>
+                <span>{isAr ? 'بوابة نداء متابع ودعم المحتوى' : 'Follower Call & Content Support Portal'}</span>
               </button>
 
               <button
@@ -258,7 +275,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                <span>{isAr ? 'بوابة الداعم' : 'Supporter'}</span>
+                <span>{isAr ? 'بوابة التبني' : 'Supporter Portal'}</span>
               </button>
 
               <button
@@ -291,182 +308,14 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* 
         =======================================================================
-        📱 NATIVE PWA MOBILE BOTTOM NAVIGATION BAR (شريط الملاحة السفلية الذكي للهواتف)
+        📱 CONTEXT-AWARE MOBILE NAVIGATION SYSTEM (نظام الملاحة السياقي للهواتف)
         =======================================================================
       */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 border-t border-slate-800/90 backdrop-blur-2xl px-2 py-1.5 pb-safe flex items-center justify-around shadow-2xl text-[10px] font-bold text-slate-400">
-        <button
-          onClick={() => setCurrentTab('home')}
-          className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition ${
-            currentTab === 'home' ? 'text-emerald-400 font-extrabold' : 'hover:text-slate-200'
-          }`}
-        >
-          <Home className={`w-5 h-5 ${currentTab === 'home' ? 'text-emerald-400 scale-110' : ''}`} />
-          <span>{isAr ? 'الرئيسية' : 'Home'}</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentTab('core')}
-          className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition ${
-            currentTab === 'core' ? 'text-emerald-400 font-extrabold' : 'hover:text-slate-200'
-          }`}
-        >
-          <Radio className={`w-5 h-5 ${currentTab === 'core' ? 'text-emerald-400 scale-110' : ''}`} />
-          <span>{isAr ? 'المنصة' : 'Core'}</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentTab('jasmine')}
-          className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition ${
-            currentTab === 'jasmine' ? 'text-amber-400 font-extrabold' : 'hover:text-slate-200'
-          }`}
-        >
-          <Sparkles className={`w-5 h-5 ${currentTab === 'jasmine' ? 'text-amber-400 scale-110' : ''}`} />
-          <span>{isAr ? 'الياسمين' : 'Jasmine'}</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentTab('dalal')}
-          className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition ${
-            currentTab === 'dalal' ? 'text-teal-400 font-extrabold' : 'hover:text-slate-200'
-          }`}
-        >
-          <BookOpen className={`w-5 h-5 ${currentTab === 'dalal' ? 'text-teal-400 scale-110' : ''}`} />
-          <span>{isAr ? 'دلال' : 'Dalal'}</span>
-        </button>
-
-        <button
-          onClick={() => setIsMobileMoreMenuOpen(true)}
-          className={`flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition ${
-            ['raeda', 'publisher', 'supporter', 'analytics', 'admin', 'errors'].includes(currentTab)
-              ? 'text-indigo-400 font-extrabold'
-              : 'hover:text-slate-200'
-          }`}
-        >
-          <Compass className="w-5 h-5 text-indigo-400" />
-          <span>{isAr ? 'المزيد' : 'More'}</span>
-        </button>
-      </nav>
-
-      {/* Mobile More Options Bottom Sheet Modal */}
-      {isMobileMoreMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col justify-end p-0"
-          onClick={() => setIsMobileMoreMenuOpen(false)}
-        >
-          <div
-            className="bg-slate-900 border-t border-slate-800 rounded-t-3xl p-5 space-y-4 max-h-[85dvh] overflow-y-auto pb-safe shadow-2xl animate-in slide-in-from-bottom duration-300"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <Compass className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-sm font-bold text-white">
-                  {isAr ? 'قطاعات وبوابات المنصة' : 'Platform Sectors & Portals'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsMobileMoreMenuOpen(false)}
-                className="text-slate-400 hover:text-white p-1 text-lg font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5 text-xs font-semibold">
-              <button
-                onClick={() => {
-                  setCurrentTab('raeda');
-                  setIsMobileMoreMenuOpen(false);
-                }}
-                className={`p-3 rounded-xl border text-right flex items-center gap-2.5 transition ${
-                  currentTab === 'raeda'
-                    ? 'bg-indigo-500/20 border-indigo-500 text-indigo-200 font-bold'
-                    : 'bg-slate-950 border-slate-800 text-slate-300'
-                }`}
-              >
-                <Award className="w-4 h-4 text-indigo-400 shrink-0" />
-                <span>{t.raedaSector}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setCurrentTab('publisher');
-                  setIsMobileMoreMenuOpen(false);
-                }}
-                className={`p-3 rounded-xl border text-right flex items-center gap-2.5 transition ${
-                  currentTab === 'publisher'
-                    ? 'bg-purple-500/20 border-purple-500 text-purple-200 font-bold'
-                    : 'bg-slate-950 border-slate-800 text-slate-300'
-                }`}
-              >
-                <FileText className="w-4 h-4 text-purple-400 shrink-0" />
-                <span>{isAr ? 'بوابة الناشر' : 'Publisher Portal'}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setCurrentTab('supporter');
-                  setIsMobileMoreMenuOpen(false);
-                }}
-                className={`p-3 rounded-xl border text-right flex items-center gap-2.5 transition ${
-                  currentTab === 'supporter'
-                    ? 'bg-blue-500/20 border-blue-500 text-blue-200 font-bold'
-                    : 'bg-slate-950 border-slate-800 text-slate-300'
-                }`}
-              >
-                <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>{isAr ? 'بوابة الداعم' : 'Supporter Portal'}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setCurrentTab('analytics');
-                  setIsMobileMoreMenuOpen(false);
-                }}
-                className={`p-3 rounded-xl border text-right flex items-center gap-2.5 transition ${
-                  currentTab === 'analytics'
-                    ? 'bg-cyan-500/20 border-cyan-500 text-cyan-200 font-bold'
-                    : 'bg-slate-950 border-slate-800 text-slate-300'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>{t.analyticsSystem}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setCurrentTab('admin');
-                  setIsMobileMoreMenuOpen(false);
-                }}
-                className={`p-3 rounded-xl border text-right flex items-center gap-2.5 transition ${
-                  currentTab === 'admin'
-                    ? 'bg-rose-500/20 border-rose-500 text-rose-200 font-bold'
-                    : 'bg-slate-950 border-slate-800 text-slate-300'
-                }`}
-              >
-                <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
-                <span>{isAr ? 'لوحة الإدارة والحوكمة' : 'Admin & Governance'}</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setCurrentTab('errors');
-                  setIsMobileMoreMenuOpen(false);
-                }}
-                className={`p-3 rounded-xl border text-right flex items-center gap-2.5 transition ${
-                  currentTab === 'errors'
-                    ? 'bg-amber-500/20 border-amber-500 text-amber-200 font-bold'
-                    : 'bg-slate-950 border-slate-800 text-slate-300'
-                }`}
-              >
-                <Bot className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>{isAr ? 'قاموس الأخطاء والحوكمة' : 'Error Dictionary'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ContextualMobileNav
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+        lang={lang}
+      />
     </>
   );
 };

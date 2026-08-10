@@ -27,7 +27,7 @@ export class FocusModeService {
         return { ...DEFAULT_FOCUS_PREFERENCES, ...JSON.parse(saved) };
       }
     } catch (error) {
-      console.warn('LocalStorage read warning for focus preferences:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
     }
     return DEFAULT_FOCUS_PREFERENCES;
   }
@@ -39,7 +39,7 @@ export class FocusModeService {
     try {
       localStorage.setItem(STORAGE_KEY_PREFS, JSON.stringify(prefs));
     } catch (error) {
-      console.warn('LocalStorage save warning for focus preferences:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
     }
   }
 

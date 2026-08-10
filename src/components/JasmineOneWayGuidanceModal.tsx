@@ -8,6 +8,8 @@ import {
   Info,
   CheckCircle2,
   X,
+  ArrowLeft,
+  ArrowRight,
   ExternalLink,
   Sparkles,
   Volume2,
@@ -145,13 +147,23 @@ export const JasmineOneWayGuidanceModal: React.FC<JasmineOneWayGuidanceModalProp
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-100 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition cursor-pointer min-h-[38px] active:scale-95 touch-manipulation"
+            >
+              {isAr ? <ArrowRight className="w-3.5 h-3.5 text-amber-400" /> : <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />}
+              <span>{isAr ? 'رجوع' : 'Back'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Celebrity Privacy Shield Banner */}

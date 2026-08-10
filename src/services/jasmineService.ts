@@ -225,7 +225,7 @@ export const sanitizeAndValidateUrl = (rawUrl: string): { isSafe: boolean; sanit
       sanitizedUrl: isDomainAllowed ? parsedUrl.toString() : '',
     };
   } catch (error) {
-    console.warn('Sanitize URL parsing warning in jasmineService:', error);
+    console.error("Error in Noor Al-Amani Module:", error);
     return { isSafe: false, sanitizedUrl: '' };
   }
 };
@@ -366,7 +366,7 @@ export const validateOEmbedMetadata = async (
       thumbnailUrl: fallbackThumbnail,
     };
   } catch (error) {
-    console.warn('OEmbed video verification warning in jasmineService:', error);
+    console.error("Error in Noor Al-Amani Module:", error);
     return {
       success: false,
       error: 'فشل التثبت التلقائي من حالة الفيديو',
@@ -449,7 +449,7 @@ export function sanitizeExternalUrl(rawUrl: string): string | null {
 
     return isApproved ? parsedUrl.toString() : null;
   } catch (error) {
-    console.warn('URL parsing warning in sanitizeExternalUrl:', error);
+    console.error("Error in Noor Al-Amani Module:", error);
     return null; // رابط غير صالح
   }
 }

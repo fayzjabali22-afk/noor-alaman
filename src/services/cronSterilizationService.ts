@@ -40,13 +40,13 @@ export class CronSterilizationService {
     // Run initial sterilization pass after cold start
     setTimeout(() => {
       this.executeSterilizationCycle().catch((err) => {
-        console.warn('Background Sterilization Pass Exception:', err);
+        console.error("Error in Noor Al-Amani Module:", err);
       });
     }, 5000);
 
     this.intervalId = setInterval(() => {
       this.executeSterilizationCycle().catch((err) => {
-        console.warn('Background Sterilization Pass Exception:', err);
+        console.error("Error in Noor Al-Amani Module:", err);
       });
     }, intervalMs);
   }

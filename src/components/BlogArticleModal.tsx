@@ -47,7 +47,7 @@ export const BlogArticleModal: React.FC<BlogArticleModalProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
-      console.warn('Clipboard write error in BlogArticleModal:', err);
+      console.error("Error in Noor Al-Amani Module:", err);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }

@@ -72,8 +72,37 @@ export class SovereignServiceAdapter {
       });
       return await res.json();
     } catch (error) {
-      console.warn('Decoupled Adapter: Outbound visit fallback activated', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return { success: true, outboundUrl: payload.targetUrl };
+    }
+  }
+
+  /**
+   * Protocol 88 Zero-Cost Telemetry Beacon
+   */
+  public sendTelemetryBeacon(videoUrl: string, referralId?: string, endpoint = '/api/telemetry/track-click'): void {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+        const payload = JSON.stringify({
+          url: videoUrl,
+          refId: referralId || 'DIRECT_GUIDANCE',
+          timestamp: Date.now(),
+          protocol: 'PROTOCOL_88',
+        });
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(endpoint, blob);
+      } else {
+        fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: videoUrl, refId: referralId || 'DIRECT_GUIDANCE', timestamp: Date.now() }),
+          keepalive: true,
+        }).catch((err) => {
+          console.error("Error in Noor Al-Amani Module:", err);
+        });
+      }
+    } catch (error) {
+      console.error("Error in Noor Al-Amani Module:", error);
     }
   }
 
@@ -89,7 +118,7 @@ export class SovereignServiceAdapter {
       });
       return await res.json();
     } catch (error) {
-      console.warn('Decoupled Adapter: Report submission fallback activated', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return { success: true, reportId: `REP-FB-${Date.now()}` };
     }
   }
@@ -106,7 +135,7 @@ export class SovereignServiceAdapter {
       });
       return await res.json();
     } catch (error) {
-      console.warn('Decoupled Adapter: AI query fallback activated', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return {
         success: false,
         error: 'تعذر الاتصال بالمساعد الذكي حالياً، يرجى المحاولة لاحقاً.',
@@ -122,7 +151,7 @@ export class SovereignServiceAdapter {
       const res = await fetch('/api/health');
       return await res.json();
     } catch (error) {
-      console.warn('Health check fallback triggered in apiAdapter:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return { status: 'DEGRADED', timestamp: Date.now() };
     }
   }
@@ -144,7 +173,7 @@ export class SovereignServiceAdapter {
       });
       return { success: true, logId: log.id };
     } catch (error) {
-      console.warn('Decoupled Adapter: Audit log persistence fallback activated', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return { success: true, logId: log.id };
     }
   }
@@ -162,7 +191,7 @@ export class SovereignServiceAdapter {
       });
       return { success: true };
     } catch (error) {
-      console.warn('Decoupled Adapter: Verification queue persistence fallback activated', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return { success: true };
     }
   }
@@ -187,7 +216,7 @@ export class SovereignServiceAdapter {
       });
       return await res.json();
     } catch (error) {
-      console.warn('Decoupled Adapter: Cron Sweeper fallback activated', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return {
         status: report.status,
         purgedCacheEntries: report.clearedSessionsCount + report.purgedStaleAuditLogs,
@@ -210,6 +239,24 @@ export class SovereignServiceAdapter {
     isGhostMode?: boolean;
   }): Promise<{ success: boolean; certificateId: string; recordNo: string }> {
     try {
+      const watermarkSeal = `SEAL-JASMINE-${payload.celebrityId}`;
+      const existing: Array<{ endorsedChannelId?: string; watermarkSeal?: string; id: string; certificateNo: string }> = JSON.parse(
+        localStorage.getItem('noor_sovereign_certs') || '[]'
+      );
+
+      // Duplication safeguard: check if a certificate with matching watermarkSeal or endorsedChannelId exists
+      const duplicate = existing.find(
+        (cert) => cert.watermarkSeal === watermarkSeal || cert.endorsedChannelId === payload.celebrityId
+      );
+
+      if (duplicate) {
+        return {
+          success: true,
+          certificateId: duplicate.id,
+          recordNo: duplicate.certificateNo,
+        };
+      }
+
       const certId = `CERT-JASMINE-${Date.now()}`;
       const recordNo = `NA-JAS-${Math.floor(1000 + Math.random() * 9000)}`;
       const newCert = {
@@ -223,10 +270,9 @@ export class SovereignServiceAdapter {
         hashSignature: `0xJASMINE${Date.now().toString(16).toUpperCase()}`,
         type: 'JASMINE_ENDORSEMENT',
         endorsedChannelId: payload.celebrityId,
-        watermarkSeal: `SEAL-JASMINE-${payload.celebrityId}`,
+        watermarkSeal,
       };
 
-      const existing = JSON.parse(localStorage.getItem('noor_sovereign_certs') || '[]');
       localStorage.setItem('noor_sovereign_certs', JSON.stringify([newCert, ...existing]));
 
       return { success: true, certificateId: certId, recordNo };

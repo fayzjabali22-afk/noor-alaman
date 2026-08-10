@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Play, Loader2, ExternalLink, ShieldCheck, Zap } from 'lucide-react';
+import { apiAdapter } from '../services/apiAdapter';
 
 export interface ZeroCostVideoTrackerProps {
   videoUrl: string;
@@ -79,11 +80,11 @@ export const ZeroCostVideoTracker: React.FC<ZeroCostVideoTrackerProps> = ({
           body: JSON.stringify({ url: videoUrl, refId: referralId || 'DIRECT_GUIDANCE', timestamp: Date.now() }),
           keepalive: true,
         }).catch((err) => {
-          console.warn('Telemetry beacon warning in Noor Al-Amani:', err);
+          console.error("Error in Noor Al-Amani Module:", err);
         });
       }
     } catch (error) {
-      console.error('Error in ZeroCostVideoTracker Module:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
     }
 
     // ب) تفويض الحدث الخارجي للمكون الأب إن وجد

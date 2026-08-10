@@ -64,7 +64,7 @@ class SovereignEventBus {
       try {
         cb(event as SectorEvent);
       } catch (err) {
-        console.error(`Error executing event listener for ${eventType}:`, err);
+        console.error("Error in Noor Al-Amani Module:", err);
       }
     });
   }

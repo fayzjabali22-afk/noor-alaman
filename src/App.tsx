@@ -47,6 +47,7 @@ import { FocusedModeView } from './components/FocusedModeView';
 import { BlogArticleModal } from './components/BlogArticleModal';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 import { AppSettingsModal } from './components/AppSettingsModal';
+import { ContextualMobileNav } from './components/layout/ContextualMobileNav';
 
 export default function App() {
   // State collections with Arterial Persistence (Preventing State Loss)
@@ -55,7 +56,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_lang');
       return (saved === 'en' || saved === 'ar') ? saved : 'ar';
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_lang:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return 'ar';
     }
   });
@@ -65,7 +66,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_role');
       return (saved as UserRole) || 'SUPPORTER';
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_role:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return 'SUPPORTER';
     }
   });
@@ -74,7 +75,7 @@ export default function App() {
     try {
       return localStorage.getItem('noor_reading_mode') === 'true';
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_reading_mode:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return false;
     }
   });
@@ -83,7 +84,7 @@ export default function App() {
     try {
       return localStorage.getItem('noor_supporter_ghost_mode') === 'true';
     } catch (error) {
-      console.warn('LocalStorage read warning for ghost mode:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return false;
     }
   });
@@ -94,7 +95,7 @@ export default function App() {
     try {
       return localStorage.getItem('noor_current_tab') || 'admin';
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_current_tab:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return 'admin';
     }
   });
@@ -104,7 +105,7 @@ export default function App() {
     try {
       localStorage.setItem('noor_current_tab', tab);
     } catch (err) {
-      console.error('LocalStorage write error for noor_current_tab:', err);
+      console.error("Error in Noor Al-Amani Module:", err);
     }
   };
 
@@ -113,7 +114,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_publishers');
       return saved ? JSON.parse(saved) : initialPublishers;
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_publishers:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return initialPublishers;
     }
   });
@@ -127,7 +128,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_verification_queue');
       return saved ? JSON.parse(saved) : initialVerificationQueue;
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_verification_queue:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return initialVerificationQueue;
     }
   });
@@ -137,7 +138,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_reports');
       return saved ? JSON.parse(saved) : initialReports;
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_reports:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return initialReports;
     }
   });
@@ -147,7 +148,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_audit_logs');
       return saved ? JSON.parse(saved) : initialAuditLogs;
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_audit_logs:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return initialAuditLogs;
     }
   });
@@ -157,7 +158,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_supporter_actions');
       return saved ? JSON.parse(saved) : [];
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_supporter_actions:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return [];
     }
   });
@@ -167,7 +168,7 @@ export default function App() {
       const saved = localStorage.getItem('noor_fair_weights');
       return saved ? JSON.parse(saved) : defaultFairEngineWeights;
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_fair_weights:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return defaultFairEngineWeights;
     }
   });
@@ -185,7 +186,7 @@ export default function App() {
       localStorage.setItem('noor_supporter_actions', JSON.stringify(supporterActions));
       localStorage.setItem('noor_fair_weights', JSON.stringify(fairEngineWeights));
     } catch (e) {
-      console.warn('Arterial persistence write skipped:', e);
+      console.error("Error in Noor Al-Amani Module:", e);
     }
   }, [lang, role, currentTab, publishers, verificationQueue, reports, auditLogs, supporterActions, fairEngineWeights]);
 
@@ -194,7 +195,7 @@ export default function App() {
     try {
       localStorage.setItem('noor_reading_mode', String(isReadingMode));
     } catch (e) {
-      console.warn('Reading mode persistence skipped:', e);
+      console.error("Error in Noor Al-Amani Module:", e);
     }
     if (isReadingMode) {
       document.documentElement.classList.add('reading-mode-active');
@@ -216,7 +217,7 @@ export default function App() {
       if (isStandalone) return true;
       return localStorage.getItem('noor_pwa_installed') === 'true';
     } catch (error) {
-      console.warn('LocalStorage read warning for noor_pwa_installed:', error);
+      console.error("Error in Noor Al-Amani Module:", error);
       return false;
     }
   });
@@ -249,7 +250,7 @@ export default function App() {
       try {
         localStorage.setItem('noor_pwa_installed', 'true');
       } catch (e) {
-        console.warn('Could not save pwa installed state:', e);
+        console.error("Error in Noor Al-Amani Module:", e);
       }
     };
 
@@ -268,7 +269,7 @@ export default function App() {
     try {
       localStorage.setItem('noor_pwa_installed', 'true');
     } catch (e) {
-      console.warn('Error persisting PWA installed flag:', e);
+      console.error("Error in Noor Al-Amani Module:", e);
     }
   };
 
@@ -319,7 +320,7 @@ export default function App() {
       reason: newReport.reason,
       details: newReport.evidenceDetails,
     }).catch((err) => {
-      console.warn('Report submit API warning in App.tsx:', err);
+      console.error("Error in Noor Al-Amani Module:", err);
     });
 
     const newAudit: AuditLog = {
@@ -359,7 +360,7 @@ export default function App() {
       />
 
       {/* Main App Content Viewport */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 md:py-8 pb-24 md:pb-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-1 sm:px-4 py-2 md:py-8 pb-28 md:pb-8">
         {currentTab === 'home' && (
           <GlobalErrorBoundary moduleName="HomeScreenView" fallbackTitleAr="تعثر مؤقت في عرض الشاشة الرئيسية">
             <HomeScreenView
@@ -397,6 +398,7 @@ export default function App() {
               setCelebrities={setCelebrities}
               lang={lang}
               isGhostMode={isGhostMode}
+              onNavigateToSupporterPortal={() => setCurrentTab('supporter')}
             />
           </GlobalErrorBoundary>
         )}
@@ -527,6 +529,13 @@ export default function App() {
         setLang={setLang}
         role={role}
         setRole={setRole}
+      />
+
+      {/* Contextual Mobile Bottom Navigation Bar [NA-SOVEREIGN-ORDER-057] */}
+      <ContextualMobileNav
+        currentTab={currentTab}
+        setCurrentTab={handleTabChange}
+        lang={lang}
       />
     </div>
   );
