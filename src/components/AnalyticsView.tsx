@@ -15,6 +15,8 @@ import {
 import { BarChart3, TrendingUp, Users, ExternalLink, Award, BookOpen } from 'lucide-react';
 import { PublisherWeeklyGrowthChart } from './PublisherWeeklyGrowthChart';
 
+import { GeographicalHeatmap } from './features/GeographicalHeatmap';
+
 interface AnalyticsViewProps {
   publishers: Publisher[];
   lang: Language;
@@ -177,6 +179,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ publishers, lang }
           </div>
         </div>
       </div>
+
+      {/* D3 Geographical Heatmap */}
+      <GeographicalHeatmap lang={lang} />
     </div>
   );
 };

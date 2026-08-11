@@ -6,6 +6,7 @@ import { initialRescuedStories } from '../data/initialData';
 import { SupportStopwatchWidget } from './SupportStopwatchWidget';
 import { NearMonetizationChannelsWidget } from './NearMonetizationChannelsWidget';
 import { RescuedLivelihoodsSection } from './RescuedLivelihoodsSection';
+import { PredictiveGrowthChart } from './features/PredictiveGrowthChart';
 import {
   ShieldCheck,
   Heart,
@@ -36,6 +37,7 @@ interface HomeScreenViewProps {
   raedaCount: number;
   spotlightPublisher?: Publisher | null;
   publishers?: Publisher[];
+  isLoading?: boolean;
   onOpenBlogModal?: () => void;
   onOpenPublisherLink?: (pub: Publisher) => void;
 }
@@ -49,12 +51,48 @@ export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
   raedaCount,
   spotlightPublisher = null,
   publishers = [],
+  isLoading = false,
   onOpenBlogModal,
   onOpenPublisherLink,
 }) => {
+  const [internalLoading, setInternalLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    // Simulate a brief initialization phase to ensure smooth rendering of complex widgets
+    const timer = setTimeout(() => {
+      setInternalLoading(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
+
   const t = translations[lang];
   const isAr = lang === 'ar';
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
+
+  if (isLoading || internalLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+        <div className="relative flex items-center justify-center">
+          {/* Outer Ring */}
+          <div className="absolute w-16 h-16 border-4 border-slate-800 rounded-full"></div>
+          {/* Spinning Ring */}
+          <div className="absolute w-16 h-16 border-4 border-transparent border-t-emerald-500 rounded-full animate-spin"></div>
+          {/* Inner Icon/Dot */}
+          <div className="w-6 h-6 bg-emerald-500/20 rounded-full animate-pulse flex items-center justify-center">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+          </div>
+        </div>
+        <div className="text-center space-y-2">
+          <h3 className="text-white font-bold text-lg tracking-wide">
+            {isAr ? 'جاري تهيئة المنصة...' : 'Initializing Platform...'}
+          </h3>
+          <p className="text-slate-400 text-xs">
+            {isAr ? 'نور الأماني - محرك الفرص العادلة' : 'Noor Al-Amani - Fair Opportunity Engine'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 py-2">
@@ -426,7 +464,8 @@ export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
         onOpenStoryUrl={(url) => window.open(url, '_blank', 'noopener,noreferrer')}
       />
 
-
+      {/* 4. Predictive Growth Chart */}
+      <PredictiveGrowthChart lang={lang} />
 
       {/* Governance Values Section */}
       <motion.section

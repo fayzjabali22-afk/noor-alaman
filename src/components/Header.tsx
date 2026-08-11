@@ -277,7 +277,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
                 <span>{isAr ? 'بوابة التبني' : 'Supporter Portal'}</span>
               </button>
-
+              <button
+                onClick={() => setCurrentTab('impact')}
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition whitespace-nowrap ${
+                  currentTab === 'impact'
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 text-rose-400" />
+                <span>{isAr ? 'أثري الشخصي' : 'My Impact'}</span>
+              </button>
               <button
                 onClick={() => setCurrentTab('analytics')}
                 className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition whitespace-nowrap ${
@@ -286,6 +296,7 @@ export const Header: React.FC<HeaderProps> = ({
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
+
                 <BarChart3 className="w-3.5 h-3.5 text-cyan-400" />
                 <span>{t.analyticsSystem}</span>
               </button>

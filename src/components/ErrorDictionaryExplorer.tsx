@@ -19,7 +19,7 @@ interface ErrorDictionaryExplorerProps {
   lang: Language;
 }
 
-export const ErrorDictionaryExplorer: React.FC<ErrorDictionaryExplorerProps> = ({ lang }) => {
+export const ErrorDictionaryExplorer: React.FC<ErrorDictionaryExplorerProps & { onOpenAssistant?: (code: string) => void }> = ({ lang, onOpenAssistant }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSector, setSelectedSector] = useState<SovereignSectorKey>('ALL');
   const [selectedSeverity, setSelectedSeverity] = useState<string>('ALL');
@@ -342,6 +342,17 @@ export const ErrorDictionaryExplorer: React.FC<ErrorDictionaryExplorerProps> = (
                             {lang === 'ar' ? 'محفوظة وموثقة بـ useMemo' : 'Memoized SSOT Local'}
                           </span>
                         </div>
+                        {onOpenAssistant && (
+                          <div className="pt-3 mt-3 border-t border-emerald-100 flex justify-center">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onOpenAssistant(item.code); }}
+                              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-2 px-4 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm shadow-emerald-500/20"
+                            >
+                              <Sparkles className="w-4 h-4" />
+                              {lang === 'ar' ? 'الاستفسار عبر المساعد الذكي' : 'Ask Smart Assistant'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

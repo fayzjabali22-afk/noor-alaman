@@ -115,9 +115,13 @@ export function useNotifications() {
       };
 
       if (unreadCount > 0 && nav.setAppBadge) {
-        nav.setAppBadge(unreadCount).catch(() => {});
+        nav.setAppBadge(unreadCount).catch((err) => {
+          console.error("Error in Noor Al-Amani Module:", err);
+        });
       } else if (unreadCount === 0 && nav.clearAppBadge) {
-        nav.clearAppBadge().catch(() => {});
+        nav.clearAppBadge().catch((err) => {
+          console.error("Error in Noor Al-Amani Module:", err);
+        });
       }
     }
   }, [unreadCount]);

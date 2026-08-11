@@ -38,6 +38,7 @@ import { PublisherPortalView } from './components/PublisherPortalView';
 import { SupporterPortalView } from './components/SupporterPortalView';
 import { AdminPortalView } from './components/AdminPortalView';
 import { AnalyticsView } from './components/AnalyticsView';
+import { HybridImpactView } from './components/HybridImpactView';
 import { ErrorDictionaryExplorer } from './components/ErrorDictionaryExplorer';
 import { AIAssistantDrawer } from './components/AIAssistantDrawer';
 import { FloatingAIButton } from './components/FloatingAIButton';
@@ -439,6 +440,12 @@ export default function App() {
           </GlobalErrorBoundary>
         )}
 
+        {currentTab === 'impact' && (
+          <GlobalErrorBoundary moduleName="HybridImpactView" fallbackTitleAr="تعثر مؤقت في شاشة الأثر">
+            <HybridImpactView publishers={publishers} supporterActions={supporterActions} lang={lang} setCurrentTab={handleTabChange} />
+          </GlobalErrorBoundary>
+        )}
+
         {currentTab === 'analytics' && (
           <GlobalErrorBoundary moduleName="AnalyticsView" fallbackTitleAr="تعثر مؤقت في شاشة التحليلات">
             <AnalyticsView publishers={publishers} lang={lang} />
@@ -447,7 +454,7 @@ export default function App() {
 
         {currentTab === 'errors' && (
           <GlobalErrorBoundary moduleName="ErrorDictionaryExplorer" fallbackTitleAr="تعثر مؤقت في معجم الأخطاء">
-            <ErrorDictionaryExplorer lang={lang} />
+            <ErrorDictionaryExplorer lang={lang} onOpenAssistant={(code) => { console.log("AI trigger", code); setIsAiDrawerOpen(true); }} />
           </GlobalErrorBoundary>
         )}
 

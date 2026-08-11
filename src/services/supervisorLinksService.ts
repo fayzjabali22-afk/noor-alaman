@@ -78,7 +78,7 @@ export class SupervisorLinksService {
         storedVerifiedRaw = localStorage.getItem(STORAGE_KEY_VERIFIED);
       }
 
-      let pendingList: PendingLink[] = storedPendingRaw
+      const pendingList: PendingLink[] = storedPendingRaw
         ? JSON.parse(storedPendingRaw)
         : defaultPendingLinks;
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import {
   Publisher,
   Language,
@@ -12,7 +12,7 @@ import {
   getCategoryLabel,
   getLifecycleLabel,
 } from '../lib/i18n';
-import { useFairEngine } from '../hooks/useFairEngine';
+import { useCorePlatformLogic } from '../hooks/useCorePlatformLogic';
 import { TrustBadge } from './TrustBadge';
 import {
   Search,
@@ -55,12 +55,27 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
 }) => {
   const t = translations[lang];
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'ALL'>('ALL');
-  const [selectedPlatform, setSelectedPlatform] = useState<PlatformType | 'ALL'>('ALL');
-  const [sortBy, setSortBy] = useState<'FAIR' | 'VISITS_ASC' | 'VERIFICATION'>('FAIR');
-  const [activeOutboundPublisher, setActiveOutboundPublisher] = useState<Publisher | null>(null);
-  const [selectedFairHistoryPublisher, setSelectedFairHistoryPublisher] = useState<Publisher | null>(null);
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    selectedPlatform,
+    setSelectedPlatform,
+    sortBy,
+    setSortBy,
+    activeOutboundPublisher,
+    setActiveOutboundPublisher,
+    selectedFairHistoryPublisher,
+    setSelectedFairHistoryPublisher,
+    processedPublishers,
+    handleConfirmOutbound,
+  } = useCorePlatformLogic({
+    publishers,
+    setPublishers,
+    weights,
+    onRecordAction,
+  });
 
   // Platform icon helper
   const getPlatformIcon = (platform: PlatformType) => {
@@ -80,81 +95,8 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
       default:
         return <Globe className="w-4 h-4 text-emerald-400" />;
     }
+
   };
-
-  const { calculateScore } = useFairEngine(publishers, weights);
-
-  // Filter & Sort
-  const processedPublishers = useMemo(() => {
-    let list = publishers.map((p) => ({
-      ...p,
-      fairScore: calculateScore(p),
-    }));
-
-    // Search filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.location.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
-      );
-    }
-
-    // Category filter
-    if (selectedCategory !== 'ALL') {
-      list = list.filter((p) => p.category === selectedCategory);
-    }
-
-    // Platform filter
-    if (selectedPlatform !== 'ALL') {
-      list = list.filter((p) => p.platform === selectedPlatform);
-    }
-
-    // Sorting
-    if (sortBy === 'FAIR') {
-      list.sort((a, b) => (b.fairScore || 0) - (a.fairScore || 0));
-    } else if (sortBy === 'VISITS_ASC') {
-      list.sort((a, b) => a.totalVisitsFromPlatform - b.totalVisitsFromPlatform);
-    } else if (sortBy === 'VERIFICATION') {
-      const tierRank = { PLATINUM: 3, GOLD: 2, BASIC: 1 };
-      list.sort((a, b) => tierRank[b.verificationLevel] - tierRank[a.verificationLevel]);
-    }
-
-    return list;
-  }, [publishers, searchQuery, selectedCategory, selectedPlatform, sortBy, calculateScore]);
-
-  // Handle Outbound Redirection Click
-  const handleConfirmOutbound = () => {
-    if (!activeOutboundPublisher) return;
-
-    const updatedPublisher = {
-      ...activeOutboundPublisher,
-      totalVisitsFromPlatform: activeOutboundPublisher.totalVisitsFromPlatform + 1,
-      lastImpressionTime: new Date().toISOString(),
-    };
-
-    // Update state
-    setPublishers((prev) =>
-      prev.map((p) => (p.id === activeOutboundPublisher.id ? updatedPublisher : p))
-    );
-
-    // Record action for Supporter Hub & Audit
-    onRecordAction({
-      id: `act-${Date.now()}`,
-      publisherId: activeOutboundPublisher.id,
-      publisherName: activeOutboundPublisher.name,
-      platform: activeOutboundPublisher.platform,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Open external official channel in new tab
-    window.open(activeOutboundPublisher.externalUrl, '_blank', 'noopener,noreferrer');
-
-    setActiveOutboundPublisher(null);
-  };
-
   return (
     <div className="space-y-8">
       {/* Platform Concept Banner */}
@@ -213,6 +155,8 @@ export const CorePlatformView: React.FC<CorePlatformViewProps> = ({
             >
               <option value="FAIR">{t.fairEngineSorting}</option>
               <option value="VISITS_ASC">{t.visitCountSorting}</option>
+              <option value="VISITS_DESC">{t.mostVisitedSorting}</option>
+              <option value="NEWEST">{t.newestSorting}</option>
               <option value="VERIFICATION">{t.verificationSorting}</option>
             </select>
           </div>
