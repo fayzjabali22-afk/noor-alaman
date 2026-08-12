@@ -87,9 +87,10 @@ async function startServer() {
       });
 
       res.json({ text: response.text || '' });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('AI Assistant API Error:', err);
-      res.status(500).json({ error: err.message || 'Internal server error in AI Assistant' });
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      res.status(500).json({ error: errorMessage || 'Internal server error in AI Assistant' });
     }
   });
 
@@ -196,24 +197,44 @@ async function startServer() {
     return report;
   };
 
-  // Schedule background sweeping using node-cron
+  // Schedule background sweeping using node-cron (Development ONLY)
+  if (process.env.NODE_ENV !== 'production') {
+    // Run daily at 03:00 AM (Database Sterilization)
+    cron.schedule('0 3 * * *', () => {
+      console.log('[CRON] بدء تشغيل المكنسة البرمجية اليومية (Database Sterilization) - Local Mode...');
+      try { runSovereignSweeperJob(); } catch(e) { console.error(e); }
+    });
 
-  
-  // Run daily at 03:00 AM (Database Sterilization)
-  cron.schedule('0 3 * * *', () => {
-    console.log('[CRON] بدء تشغيل المكنسة البرمجية اليومية (Database Sterilization)...');
-    runSovereignSweeperJob();
-  });
+    // Keep a faster interval for in-memory cache clearing (e.g. every 10 mins)
+    cron.schedule('*/10 * * * *', () => {
+      try { runSovereignSweeperJob(); } catch(e) { console.error(e); }
+    });
+  } else {
+    console.log('[CRON] Production mode detected. node-cron disabled. Awaiting Cloud Scheduler trigger.');
+  }
 
-  // Keep a faster interval for in-memory cache clearing (e.g. every 10 mins)
-  cron.schedule('*/10 * * * *', () => {
-    runSovereignSweeperJob();
-  });
+  // Secure External Trigger Endpoint for Cloud Scheduler
+  app.post('/api/cron/sweeper', (req, res) => {
+    const authHeader = req.headers.authorization;
+    const expectedToken = process.env.CRON_SECRET;
 
-  // Manual Trigger Endpoint for Admins / Scheduled Cloud Cron
-  app.post('/api/cron/sweeper', createRateLimiter('generalApi'), (_req, res) => {
-    const report = runSovereignSweeperJob();
-    res.json(report);
+    if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
+      console.warn('[CRON] محاولة وصول غير مصرح بها لنقطة المكنسة البرمجية');
+      return res.status(401).json({ error: 'Unauthorized: Invalid or missing Bearer token' });
+    }
+
+    try {
+      const report = runSovereignSweeperJob();
+      res.json({
+        status: 'success',
+        cleanedRecordsCount: report.purgedCacheEntries + report.purgedSessions + report.purgedNotifications + report.purgedTrips,
+        timestamp: new Date().toISOString(),
+        details: report
+      });
+    } catch (error: unknown) {
+      console.error('[CRON ERROR] فشل أثناء عملية التطهير:', error);
+      res.status(500).json({ error: 'Internal server error during sweeping' });
+    }
   });
 
   // Vite middleware in development

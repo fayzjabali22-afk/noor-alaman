@@ -29,24 +29,24 @@ import { cronSterilizationService } from './services/cronSterilizationService';
 
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { HomeScreenView } from './components/HomeScreenView';
-import { CorePlatformView } from './components/CorePlatformView';
-import { JasmineSectorView } from './components/JasmineSectorView';
-import { DalalSectorView } from './components/DalalSectorView';
-import { RaedaSectorView } from './components/RaedaSectorView';
-import { PublisherPortalView } from './components/PublisherPortalView';
-import { SupporterPortalView } from './components/SupporterPortalView';
-import { AdminPortalView } from './components/AdminPortalView';
-import { AnalyticsView } from './components/AnalyticsView';
-import { HybridImpactView } from './components/HybridImpactView';
-import { ErrorDictionaryExplorer } from './components/ErrorDictionaryExplorer';
+const HomeScreenView = React.lazy(() => import('./components/HomeScreenView').then(module => ({ default: module.HomeScreenView })));
+const CorePlatformView = React.lazy(() => import('./components/CorePlatformView').then(module => ({ default: module.CorePlatformView })));
+const JasmineSectorView = React.lazy(() => import('./components/JasmineSectorView').then(module => ({ default: module.JasmineSectorView })));
+const DalalSectorView = React.lazy(() => import('./components/DalalSectorView').then(module => ({ default: module.DalalSectorView })));
+const RaedaSectorView = React.lazy(() => import('./components/RaedaSectorView').then(module => ({ default: module.RaedaSectorView })));
+const PublisherPortalView = React.lazy(() => import('./components/PublisherPortalView').then(module => ({ default: module.PublisherPortalView })));
+const SupporterPortalView = React.lazy(() => import('./components/SupporterPortalView').then(module => ({ default: module.SupporterPortalView })));
+const AdminPortalView = React.lazy(() => import('./components/AdminPortalView').then(module => ({ default: module.AdminPortalView })));
+const AnalyticsView = React.lazy(() => import('./components/AnalyticsView').then(module => ({ default: module.AnalyticsView })));
+const HybridImpactView = React.lazy(() => import('./components/HybridImpactView').then(module => ({ default: module.HybridImpactView })));
+const ErrorDictionaryExplorer = React.lazy(() => import('./components/ErrorDictionaryExplorer').then(module => ({ default: module.ErrorDictionaryExplorer })));
 import { AIAssistantDrawer } from './components/AIAssistantDrawer';
 import { FloatingAIButton } from './components/FloatingAIButton';
 import { PwaInstallBanner } from './components/PwaInstallBanner';
 import { FairEngineConfigModal } from './components/FairEngineConfigModal';
 import { FocusedModeView } from './components/FocusedModeView';
 import { BlogArticleModal } from './components/BlogArticleModal';
-import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
+import { SectorErrorBoundary } from './components/common/SectorErrorBoundary';
 import { AppSettingsModal } from './components/AppSettingsModal';
 import { ContextualMobileNav } from './components/layout/ContextualMobileNav';
 
@@ -363,8 +363,9 @@ export default function App() {
       {/* Main App Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-1 sm:px-4 py-2 md:py-8 pb-28 md:pb-8">
         {currentTab === 'home' && (
-          <GlobalErrorBoundary moduleName="HomeScreenView" fallbackTitleAr="تعثر مؤقت في عرض الشاشة الرئيسية">
-            <HomeScreenView
+          <SectorErrorBoundary moduleName="HomeScreenView" fallbackTitleAr="تعثر مؤقت في عرض الشاشة الرئيسية">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري تحميل مكونات القطاع السيادي...</div>}>
+              <HomeScreenView
               lang={lang}
               onNavigateTab={handleTabChange}
               totalPublishersCount={publishers.length}
@@ -375,12 +376,14 @@ export default function App() {
               publishers={publishers}
               onOpenBlogModal={() => setIsBlogModalOpen(true)}
             />
-          </GlobalErrorBoundary>
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'core' && (
-          <GlobalErrorBoundary moduleName="CorePlatformView" fallbackTitleAr="تعثر مؤقت في مفاعل التكافؤ النمو">
-            <CorePlatformView
+          <SectorErrorBoundary moduleName="CorePlatformView" fallbackTitleAr="تعثر مؤقت في مفاعل التكافؤ النمو">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري تحميل مكونات القطاع السيادي...</div>}>
+              <CorePlatformView
               publishers={publishers}
               setPublishers={setPublishers}
               weights={fairEngineWeights}
@@ -389,46 +392,56 @@ export default function App() {
               onOpenFairEngineConfig={() => setIsFairEngineModalOpen(true)}
               onOpenFocusMode={() => setIsFocusModeOpen(true)}
             />
-          </GlobalErrorBoundary>
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'jasmine' && (
-          <GlobalErrorBoundary moduleName="JasmineSectorView" fallbackTitleAr="تعثر مؤقت في قطاع الياسمين">
-            <JasmineSectorView
+          <SectorErrorBoundary moduleName="JasmineSectorView" fallbackTitleAr="تعثر مؤقت في قطاع الياسمين">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري تحميل مكونات القطاع السيادي...</div>}>
+              <JasmineSectorView
               celebrities={celebrities}
               setCelebrities={setCelebrities}
               lang={lang}
               isGhostMode={isGhostMode}
               onNavigateToSupporterPortal={() => setCurrentTab('supporter')}
             />
-          </GlobalErrorBoundary>
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'dalal' && (
-          <GlobalErrorBoundary moduleName="DalalSectorView" fallbackTitleAr="تعثر مؤقت في قطاع دلال">
-            <DalalSectorView channels={dalalChannels} lang={lang} />
-          </GlobalErrorBoundary>
+          <SectorErrorBoundary moduleName="DalalSectorView" fallbackTitleAr="تعثر مؤقت في قطاع دلال">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <DalalSectorView channels={dalalChannels} lang={lang} />
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'raeda' && (
-          <GlobalErrorBoundary moduleName="RaedaSectorView" fallbackTitleAr="تعثر مؤقت في قطاع رائدة">
-            <RaedaSectorView archiveList={raedaArchive} lang={lang} />
-          </GlobalErrorBoundary>
+          <SectorErrorBoundary moduleName="RaedaSectorView" fallbackTitleAr="تعثر مؤقت في قطاع رائدة">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <RaedaSectorView archiveList={raedaArchive} lang={lang} />
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'publisher' && (
-          <GlobalErrorBoundary moduleName="PublisherPortalView" fallbackTitleAr="تعثر مؤقت في بوابة الناشرين">
-            <PublisherPortalView
+          <SectorErrorBoundary moduleName="PublisherPortalView" fallbackTitleAr="تعثر مؤقت في بوابة الناشرين">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <PublisherPortalView
               publishers={publishers}
               setPublishers={setPublishers}
               lang={lang}
             />
-          </GlobalErrorBoundary>
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'supporter' && (
-          <GlobalErrorBoundary moduleName="SupporterPortalView" fallbackTitleAr="تعثر مؤقت في جناح الكفالة والداعمين">
-            <SupporterPortalView
+          <SectorErrorBoundary moduleName="SupporterPortalView" fallbackTitleAr="تعثر مؤقت في جناح الكفالة والداعمين">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <SupporterPortalView
               supporterActions={supporterActions}
               publishers={publishers}
               setPublishers={setPublishers}
@@ -437,30 +450,38 @@ export default function App() {
               onRecordAction={handleRecordAction}
               onAddReport={handleAddReport}
             />
-          </GlobalErrorBoundary>
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'impact' && (
-          <GlobalErrorBoundary moduleName="HybridImpactView" fallbackTitleAr="تعثر مؤقت في شاشة الأثر">
-            <HybridImpactView publishers={publishers} supporterActions={supporterActions} lang={lang} setCurrentTab={handleTabChange} />
-          </GlobalErrorBoundary>
+          <SectorErrorBoundary moduleName="HybridImpactView" fallbackTitleAr="تعثر مؤقت في شاشة الأثر">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <HybridImpactView publishers={publishers} supporterActions={supporterActions} lang={lang} setCurrentTab={handleTabChange} />
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'analytics' && (
-          <GlobalErrorBoundary moduleName="AnalyticsView" fallbackTitleAr="تعثر مؤقت في شاشة التحليلات">
-            <AnalyticsView publishers={publishers} lang={lang} />
-          </GlobalErrorBoundary>
+          <SectorErrorBoundary moduleName="AnalyticsView" fallbackTitleAr="تعثر مؤقت في شاشة التحليلات">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <AnalyticsView publishers={publishers} lang={lang} />
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'errors' && (
-          <GlobalErrorBoundary moduleName="ErrorDictionaryExplorer" fallbackTitleAr="تعثر مؤقت في معجم الأخطاء">
-            <ErrorDictionaryExplorer lang={lang} onOpenAssistant={(code) => { console.log("AI trigger", code); setIsAiDrawerOpen(true); }} />
-          </GlobalErrorBoundary>
+          <SectorErrorBoundary moduleName="ErrorDictionaryExplorer" fallbackTitleAr="تعثر مؤقت في معجم الأخطاء">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <ErrorDictionaryExplorer lang={lang} onOpenAssistant={(code) => { console.log("AI trigger", code); setIsAiDrawerOpen(true); }} />
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
 
         {currentTab === 'admin' && (
-          <GlobalErrorBoundary moduleName="AdminPortalView" fallbackTitleAr="تعثر مؤقت في غرفة العمليات والتحكم">
-            <AdminPortalView
+          <SectorErrorBoundary moduleName="AdminPortalView" fallbackTitleAr="تعثر مؤقت في غرفة العمليات والتحكم">
+            <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري التحميل...</div>}>
+              <AdminPortalView
               weights={fairEngineWeights}
               setWeights={setFairEngineWeights}
               verificationQueue={verificationQueue}
@@ -475,7 +496,8 @@ export default function App() {
               isReadingMode={isReadingMode}
               onToggleReadingMode={setIsReadingMode}
             />
-          </GlobalErrorBoundary>
+            </React.Suspense>
+          </SectorErrorBoundary>
         )}
       </main>
 

@@ -385,3 +385,93 @@ export const initialAuditLogs: AuditLog[] = [
     category: 'TECHNICAL',
   },
 ];
+
+// ============================================================================
+// Sovereign Data Registry (جدول الفهرسة التفاعلي للبيانات السيادية)
+// ============================================================================
+// يتم هنا ربط البيانات الأولية بالخدمات والرموز المرجعية للأرشفة السيادية
+// لضمان التتبع وعدم التكرار وفقاً للأرشيف السيادي (SOVEREIGN_CODE_ARCHIVE.md)
+
+export interface SovereignRegistryItem {
+  domain: string;
+  dataKey: string;
+  serviceFile: string;
+  sovereignCommandRef: string;
+  descriptionAr: string;
+  status: 'ACTIVE' | 'ARCHIVED' | 'DORMANT';
+}
+
+export const sovereignDataRegistry: SovereignRegistryItem[] = [
+  {
+    domain: 'Publishers (الناشرون)',
+    dataKey: 'initialPublishers',
+    serviceFile: 'src/hooks/useCorePlatformLogic.ts',
+    sovereignCommandRef: 'CMD-2026-0730-ARCHITECTURE-BLUEPRINT-104',
+    descriptionAr: 'بيانات الناشرين وقنواتهم الأصلية والمؤشرات العادلة',
+    status: 'ACTIVE'
+  },
+  {
+    domain: 'Jasmine Sector (قطاع الياسمين)',
+    dataKey: 'initialJasmineCelebrities',
+    serviceFile: 'src/hooks/useJasmineWizard.ts',
+    sovereignCommandRef: 'NA-SOV-2026-JSM-005',
+    descriptionAr: 'توثيق تزكيات الشخصيات العامة والمؤثرين (بدون إعلانات)',
+    status: 'ACTIVE'
+  },
+  {
+    domain: 'Dalal Sector (قطاع دلال)',
+    dataKey: 'initialDalalChannels',
+    serviceFile: 'src/components/DalalSectorView.tsx',
+    sovereignCommandRef: 'CMD-2026-0726-UX-SSOT-13',
+    descriptionAr: 'قنوات الأسر المنتجة والحرفية في طور التمكين والاستقرار',
+    status: 'ACTIVE'
+  },
+  {
+    domain: 'Raeda Sector (قطاع رائدة)',
+    dataKey: 'initialRaedaArchive',
+    serviceFile: 'src/components/RaedaSectorView.tsx',
+    sovereignCommandRef: 'NA-SECTOR-BOUNDARIES-001',
+    descriptionAr: 'أرشيف قصص النجاح والقنوات المترجلة عن الدعم للاكتفاء',
+    status: 'ARCHIVED'
+  },
+  {
+    domain: 'Verification Queue (طابور التحقق)',
+    dataKey: 'initialVerificationQueue',
+    serviceFile: 'src/hooks/useAdminOperations.ts',
+    sovereignCommandRef: 'CMD-2026-0730-VERIFICATION-GOVERNANCE-INTEGRATION-076',
+    descriptionAr: 'طلبات الانضمام والتوثيق للناشرين (أساسي، ذهبي، بلاتيني)',
+    status: 'ACTIVE'
+  },
+  {
+    domain: 'Reports (البلاغات الأمنية)',
+    dataKey: 'initialReports',
+    serviceFile: 'src/hooks/useAdminOperations.ts',
+    sovereignCommandRef: 'NA-REPORT-HISTORY-001',
+    descriptionAr: 'البلاغات الحوكمية المقدمة من الداعمين (الراية الحمراء)',
+    status: 'ACTIVE'
+  },
+  {
+    domain: 'Audit Logs (سجلات الحوكمة والتدقيق)',
+    dataKey: 'initialAuditLogs',
+    serviceFile: 'src/components/AdminPortalView.tsx',
+    sovereignCommandRef: 'CMD-2026-0729-AUDIT-LOGS-CLASSIFICATION-58',
+    descriptionAr: 'سجل الشفافية والأحداث الأمنية لضمان الامتثال المعماري',
+    status: 'ACTIVE'
+  },
+  {
+    domain: 'Rescued Stories (قصص النجاة)',
+    dataKey: 'initialRescuedStories',
+    serviceFile: 'src/components/RescuedLivelihoodsSection.tsx',
+    sovereignCommandRef: 'CMD-2026-0728-BLOG-HUMAN-BELONGING-52',
+    descriptionAr: 'قصص نجاح ومقالات مدونة البعد الحضاري والتمكين',
+    status: 'ARCHIVED'
+  },
+  {
+    domain: 'Archive Sync Cron (محرك الترحيل السيادي)',
+    dataKey: 'runArchiveSyncJob',
+    serviceFile: 'src/services/archiveSyncService.ts',
+    sovereignCommandRef: 'CMD-2026-0812-RAEDA-SYNC-109',
+    descriptionAr: 'ترحيل تلقائي للبيانات المكتملة لقطاع رائدة (المنبه الخلفي)',
+    status: 'ACTIVE'
+  }
+];
