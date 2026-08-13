@@ -367,6 +367,7 @@ export default function App() {
             <React.Suspense fallback={<div className="flex h-[40vh] items-center justify-center text-slate-400 font-medium animate-pulse border border-slate-800/50 rounded-2xl bg-slate-900/20 mt-4">جاري تحميل مكونات القطاع السيادي...</div>}>
               <HomeScreenView
               lang={lang}
+              supporterActions={supporterActions}
               onNavigateTab={handleTabChange}
               totalPublishersCount={publishers.length}
               totalVisitsCount={totalVisitsCount}

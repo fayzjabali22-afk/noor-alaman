@@ -9,6 +9,7 @@ import {
 } from '../types';
 import { translations } from '../lib/i18n';
 import { useSupporterPortal } from '../hooks/useSupporterPortal';
+import { useSupporterActions } from '../hooks/useSupporterActions';
 import { ReportModal } from './ReportModal';
 import { TrustBadge } from './TrustBadge';
 import { SupporterSkeleton } from './SupporterPortal/SupporterSkeleton';
@@ -79,6 +80,10 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
   isLoading = false,
 }) => {
   const t = translations[lang];
+  const {
+    recordActionWithCooldown
+  } = useSupporterActions(onRecordAction);
+
 
   const {
     isAr,
@@ -325,7 +330,7 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
             isAr={isAr}
             sponsoredPublishers={sponsoredPublishers}
             initialTargetChannelId={guidanceTargetChannelId}
-            onRecordAction={onRecordAction}
+            onRecordAction={recordActionWithCooldown}
             onShowNotice={setVaultNoticeModal}
           />
         ) : (
@@ -349,7 +354,7 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
             isAr={isAr}
             supporterProfile={supporterProfile}
             setSupporterProfile={setSupporterProfile}
-            onRecordAction={onRecordAction}
+            onRecordAction={recordActionWithCooldown}
             setVaultNoticeModal={setVaultNoticeModal}
           />
         ) : (
@@ -1151,8 +1156,8 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
                   setIsJasmineWizardOpen(false);
                   const adoptedCount = data.step1?.adoptedChannels?.length || 0;
                   const firstChannel = data.step1?.adoptedChannels?.[0];
-                  if (onRecordAction) {
-                    onRecordAction({
+                  if (recordActionWithCooldown) {
+                    recordActionWithCooldown({
                       id: `act-jas-${Date.now()}`,
                       publisherId: firstChannel?.channelId || 'pub-1',
                       publisherName: firstChannel?.channelName || (isAr ? 'قناة ميدانية مكفولة' : 'Sponsored Field Channel'),
@@ -1185,8 +1190,8 @@ export const SupporterPortalView: React.FC<SupporterPortalViewProps> = ({
           onClose={() => setIsJasmineGuidanceOpen(false)}
           onAddGuidanceNote={(newNote: OneWayGuidanceNote) => {
             setJasmineGuidanceNotes((prev) => [newNote, ...prev]);
-            if (onRecordAction) {
-              onRecordAction({
+            if (recordActionWithCooldown) {
+              recordActionWithCooldown({
                 id: `act-guide-${Date.now()}`,
                 publisherId: newNote.targetChannelId,
                 publisherName: newNote.targetChannelName,

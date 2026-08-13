@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
-import { Publisher, SupporterAction, Language } from '../types';
+import { Publisher, SupporterAction, Language, TimeFilter } from '../types';
+import { useImpactAnalytics } from '../hooks/useImpactAnalytics';
 import { 
+  Share2,
   Heart, 
   Sparkles, 
   LineChart, 
@@ -26,6 +28,8 @@ export const HybridImpactView: React.FC<HybridImpactViewProps> = ({
   setCurrentTab
 }) => {
   const isAr = lang === 'ar';
+  
+  const { timeFilter, setTimeFilter, analytics, handleShareImpact } = useImpactAnalytics(supporterActions);
   
   // 1. Identify User's Specific Footprint
   const interactedPublisherIds = useMemo(() => {

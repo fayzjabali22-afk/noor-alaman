@@ -218,41 +218,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{t.corePlatform}</span>
               </button>
 
-              <button
-                onClick={() => setCurrentTab('jasmine')}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition whitespace-nowrap ${
-                  currentTab === 'jasmine'
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>{t.jasmineSector}</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('dalal')}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition whitespace-nowrap ${
-                  currentTab === 'dalal'
-                    ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5 text-teal-400" />
-                <span>{t.dalalSector}</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentTab('raeda')}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition whitespace-nowrap ${
-                  currentTab === 'raeda'
-                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Award className="w-3.5 h-3.5 text-indigo-400" />
-                <span>{t.raedaSector}</span>
-              </button>
+              
 
               <button
                 onClick={() => setCurrentTab('publisher')}
@@ -276,17 +242,6 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
                 <span>{isAr ? 'بوابة التبني' : 'Supporter Portal'}</span>
-              </button>
-              <button
-                onClick={() => setCurrentTab('impact')}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition whitespace-nowrap ${
-                  currentTab === 'impact'
-                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Award className="w-3.5 h-3.5 text-rose-400" />
-                <span>{isAr ? 'أثري الشخصي' : 'My Impact'}</span>
               </button>
               <button
                 onClick={() => setCurrentTab('analytics')}

@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { motion } from 'motion/react';
-import { Language, Publisher } from '../types';
+import { Language, Publisher, SupporterAction } from '../types';
+import { useImpactAnalytics } from '../hooks/useImpactAnalytics';
 import { translations } from '../lib/i18n';
 import { initialRescuedStories } from '../data/initialData';
 import { SupportStopwatchWidget } from './SupportStopwatchWidget';
@@ -10,7 +11,7 @@ import { PredictiveGrowthChart } from './features/PredictiveGrowthChart';
 import {
   ShieldCheck,
   Heart,
-  UserPlus,
+
   Sparkles,
   Award,
   BookOpen,
@@ -29,6 +30,7 @@ import {
 } from 'lucide-react';
 
 interface HomeScreenViewProps {
+  supporterActions: SupporterAction[];
   lang: Language;
   onNavigateTab: (tab: string) => void;
   totalPublishersCount: number;
@@ -44,6 +46,7 @@ interface HomeScreenViewProps {
 
 export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
   lang,
+  supporterActions,
   onNavigateTab,
   totalPublishersCount,
   totalVisitsCount,
@@ -67,6 +70,7 @@ export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
 
   const t = translations[lang];
   const isAr = lang === 'ar';
+  const { analytics } = useImpactAnalytics(supporterActions);
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
 
   if (isLoading || internalLoading) {
@@ -125,23 +129,48 @@ export const HomeScreenViewComponent: React.FC<HomeScreenViewProps> = ({
           </p>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col items-center justify-center gap-6 pt-4 w-full">
             <button
               onClick={() => onNavigateTab('supporter')}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm px-7 py-3.5 rounded-2xl shadow-xl shadow-emerald-950/40 transition hover:scale-[1.02] active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm px-8 py-3.5 rounded-2xl shadow-xl shadow-emerald-950/40 transition hover:scale-[1.02] active:scale-95"
             >
               <Heart className="w-4 h-4 text-rose-300 fill-rose-300/30" />
               <span>{isAr ? 'ابدأ الدعم والتصفح' : 'Start Support & Explore'}</span>
               <ArrowIcon className="w-4 h-4" />
             </button>
 
-            <button
-              onClick={() => onNavigateTab('publisher')}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm px-7 py-3.5 rounded-2xl border border-slate-700 transition hover:scale-[1.02] active:scale-95 shadow-md"
-            >
-              <UserPlus className="w-4 h-4 text-emerald-400" />
-              <span>{isAr ? 'انضم كناشر إنساني' : 'Join as Publisher'}</span>
-            </button>
+            {/* Quiet Impact Widget (Zero UI Bloat) */}
+            <div className="w-full max-w-2xl mx-auto mt-2">
+                <button
+                  onClick={() => onNavigateTab('impact')}
+                  className="w-full flex items-center justify-between bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/50 hover:border-slate-700/50 rounded-2xl p-3 sm:p-4 shadow-sm backdrop-blur-sm transition-all cursor-pointer group"
+                  aria-label={isAr ? 'عرض تفاصيل الأثر' : 'View Impact Details'}
+                >
+                  <div className="flex-1 text-center">
+                    <div className="text-[10px] sm:text-xs text-slate-400 mb-0.5">{isAr ? 'التفاعلات' : 'Actions'}</div>
+                    <div className="text-sm sm:text-base font-bold text-white">{analytics.totalActions}</div>
+                  </div>
+                  <div className="w-px h-8 bg-slate-800/50"></div>
+                  <div className="flex-1 text-center">
+                    <div className="text-[10px] sm:text-xs text-slate-400 mb-0.5">{isAr ? 'القنوات' : 'Channels'}</div>
+                    <div className="text-sm sm:text-base font-bold text-white">{analytics.uniquePublishersSupported}</div>
+                  </div>
+                  <div className="w-px h-8 bg-slate-800/50"></div>
+                  <div className="flex-1 text-center">
+                    <div className="text-[10px] sm:text-xs text-slate-400 mb-0.5">{isAr ? 'المنصات' : 'Platforms'}</div>
+                    <div className="text-sm sm:text-base font-bold text-white">{Object.keys(analytics.platformsImpacted).length}</div>
+                  </div>
+                  <div className="w-px h-8 bg-slate-800/50"></div>
+                  <div className="flex-1 text-center">
+                    <div className="text-[10px] sm:text-xs text-slate-400 mb-0.5">{isAr ? 'المساهمة' : 'Impact'}</div>
+                    <div className="text-sm sm:text-base font-bold text-emerald-400">{analytics.contributionRatio}%</div>
+                  </div>
+                  
+                  <div className="pl-2 sm:pl-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <ArrowIcon className="w-4 h-4 text-emerald-400" />
+                  </div>
+                </button>
+              </div>
           </div>
 
           {/* Non-Hosting Disclaimer */}

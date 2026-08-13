@@ -252,6 +252,7 @@ export interface SupporterAction {
   publisherName: string;
   platform: PlatformType;
   timestamp: string;
+  sessionId?: string; // أُضيف لربط الفعل الجماهيري بمعرف الجلسة لمنع التلاعب
 }
 
 export type SovereignSectorKey =
@@ -286,3 +287,12 @@ export interface FocusModePreferences {
 }
 
 
+
+export type TimeFilter = 'DAILY' | 'MONTHLY' | 'ALL_TIME';
+
+export interface ImpactAggregationResult {
+  totalActions: number;
+  uniquePublishersSupported: number;
+  platformsImpacted: Partial<Record<PlatformType, number>>;
+  contributionRatio: number; // e.g. how much this user contributed relative to a baseline
+}
